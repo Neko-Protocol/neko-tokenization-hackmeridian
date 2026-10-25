@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { Check } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
 import { Notice } from "@/components/ui/Notice";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { useAuth } from "@/features/auth/AuthContext";
+import { StatusBadge } from "@/features/applications/StatusBadge";
 import { AdminApiError, decideApplication } from "@/lib/admin-api";
 import type { AdminApplicationView, Decision } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
@@ -74,17 +76,17 @@ export function DecisionPanel({
   if (isFinal) {
     return (
       <SectionCard title="Decision">
-        <div className="flex flex-col gap-2 text-[13px]">
-          <p className="capitalize text-white">
-            Status: {application.status.replace(/_/g, " ")}
-          </p>
-          {application.reviewed_at && (
-            <p className="text-white/45">
-              Decided {formatDate(application.reviewed_at)}
-            </p>
-          )}
+        <div className="flex flex-col gap-3 text-[13px]">
+          <div className="flex items-center justify-between gap-3">
+            <StatusBadge status={application.status} />
+            {application.reviewed_at && (
+              <span className="text-[12px] text-white/40">
+                Decided {formatDate(application.reviewed_at)}
+              </span>
+            )}
+          </div>
           {application.review_note ? (
-            <p className="whitespace-pre-wrap rounded-lg border border-white/5 bg-[#141414] px-3 py-2 text-white/70">
+            <p className="whitespace-pre-wrap rounded-xl border border-white/5 bg-[#141414] px-4 py-3 text-white/70">
               {application.review_note}
             </p>
           ) : (
@@ -96,41 +98,32 @@ export function DecisionPanel({
   }
 
   return (
-    <SectionCard title="Decision">
+    <SectionCard
+      title="Decision"
+      description="Approve to move the asset to tokenization. A note is required to reject or request changes, and the issuer sees it."
+    >
       <div className="flex flex-col gap-3">
-        <label className="flex flex-col gap-2">
-          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/45">
-            Note
-          </span>
-          <Textarea
-            rows={4}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="Required for reject and request changes"
-          />
-        </label>
+        <Textarea
+          rows={4}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Note for the issuer"
+          aria-label="Note for the issuer"
+        />
 
         {error && <Notice tone="error">{error}</Notice>}
 
-        <div className="flex flex-wrap gap-2">
-          {application.status === "submitted" && (
-            <Button
-              variant="secondary"
-              loading={loading === "in_review"}
-              disabled={loading !== null}
-              onClick={() => void runDecision("in_review")}
-            >
-              Start review
-            </Button>
-          )}
-          <Button
-            variant="success"
-            loading={loading === "approved"}
-            disabled={loading !== null}
-            onClick={() => void runDecision("approved")}
-          >
-            Approve
-          </Button>
+        <Button
+          variant="success"
+          className="w-full"
+          loading={loading === "approved"}
+          disabled={loading !== null}
+          onClick={() => void runDecision("approved")}
+        >
+          <Check className="h-4 w-4" />
+          Approve
+        </Button>
+        <div className="grid grid-cols-2 gap-2">
           <Button
             variant="secondary"
             loading={loading === "changes_requested"}
@@ -148,6 +141,17 @@ export function DecisionPanel({
             Reject
           </Button>
         </div>
+        {application.status === "submitted" && (
+          <Button
+            variant="ghost"
+            className="w-full"
+            loading={loading === "in_review"}
+            disabled={loading !== null}
+            onClick={() => void runDecision("in_review")}
+          >
+            Mark as in review
+          </Button>
+        )}
       </div>
     </SectionCard>
   );
