@@ -1,5 +1,5 @@
-import { Home } from "@/features/home";
+import { EntryRedirect } from "@/features/home";
 
 export default function HomePage() {
-  return <Home />;
+  return <EntryRedirect />;
 }

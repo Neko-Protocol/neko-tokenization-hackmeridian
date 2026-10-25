@@ -1,55 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
+import { BannerPage } from "@/components/ui/BannerPage";
+import { FullPageSpinner } from "@/components/routing/Redirect";
 import { Notice } from "@/components/ui/Notice";
-import { Spinner } from "@/components/ui/Spinner";
-import {
-  ApplicationWorkspace,
-  AssetCard,
-  AssetDetail,
-  hasDraft,
-  money,
-  surface,
-  useMyApplications,
-} from "@/features/application";
-import type { LaunchpadAccount } from "@/lib/services/launchpad.api";
+import { AssetCard, money, surface, useMyApplications } from "@/features/application";
+import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
+import { useAccount } from "../../hooks/useAccount";
 import { ProfilePanel } from "../ui/ProfilePanel";
 
-export function Dashboard({ data }: { data: LaunchpadAccount }) {
+/** `/dashboard`: the issuer's assets, their stats and profile. */
+export function Dashboard() {
+  const router = useRouter();
+  const data = useAccount();
   const applications = useMyApplications();
-  const [creating, setCreating] = useState(hasDraft);
-  const [openId, setOpenId] = useState<string | null>(null);
-
-  if (applications.isPending) {
-    return (
-      <div className="flex justify-center py-24">
-        <Spinner className="h-5 w-5" />
-      </div>
-    );
-  }
-
   const apps = applications.data ?? [];
-  const hasAssets = apps.length > 0;
+  const isEmpty = applications.isSuccess && apps.length === 0;
 
-  if (creating || (!hasAssets && !applications.isError)) {
-    return (
-      <ApplicationWorkspace
-        account={data}
-        canExit={hasAssets}
-        onExit={() => {
-          setCreating(false);
-          applications.refetch();
-        }}
-      />
-    );
-  }
+  // Nothing to show yet: start the first asset.
+  useEffect(() => {
+    if (isEmpty) router.replace(ROUTES.newAsset);
+  }, [isEmpty, router]);
 
-  const open = apps.find((a) => a.id === openId);
-  if (open) {
-    return <AssetDetail app={open} onBack={() => setOpenId(null)} />;
-  }
+  if (applications.isPending || isEmpty) return <FullPageSpinner />;
 
   const usd = apps.filter((a) => a.currency === "USD");
   const stats = [
@@ -64,22 +41,20 @@ export function Dashboard({ data }: { data: LaunchpadAccount }) {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-col gap-1.5">
-          <h1 className="text-[30px] font-medium leading-tight tracking-tight text-white">Your assets</h1>
-          <p className="text-[15px] text-white/50">
-            Track each asset from submission to launch. Open one to see everything you sent.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setCreating(true)}
-          className="inline-flex h-12 items-center gap-2 rounded-xl bg-white px-5 text-[15px] font-medium text-[#111] transition-opacity hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" />
-          New asset
-        </button>
-      </div>
+      <BannerPage
+        badge="Launchpad"
+        title="Your assets"
+        subtitle="Track each asset from submission to launch. Open one to see everything you sent."
+        actions={
+          <Link
+            href={ROUTES.newAsset}
+            className="inline-flex h-12 items-center gap-2 rounded-xl bg-[#121212] px-5 text-[15px] font-medium text-white transition-opacity hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" />
+            New asset
+          </Link>
+        }
+      />
 
       {applications.isError ? (
         <Notice tone="error">We couldn&apos;t load your assets. Try again shortly.</Notice>
@@ -97,7 +72,7 @@ export function Dashboard({ data }: { data: LaunchpadAccount }) {
           <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
             <div className="flex flex-col gap-4">
               {apps.map((app) => (
-                <AssetCard key={app.id} app={app} onOpen={() => setOpenId(app.id)} />
+                <AssetCard key={app.id} app={app} onOpen={() => router.push(ROUTES.asset(app.id))} />
               ))}
             </div>
             <div className="lg:sticky lg:top-24">
