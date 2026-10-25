@@ -1,0 +1,27 @@
+{
+  "name": "neko-tokenization",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md,yml,yaml}\"",
+    "contracts:build": "cd contracts && stellar contract build",
+    "contracts:test": "cd contracts && cargo test"
+  },
+  "devDependencies": {
+    "prettier": "^3",
+    "turbo": "^2",
+    "typescript": "^5"
+  },
+  "packageManager": "npm@10.8.2"
+}
