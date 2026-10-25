@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const ALLOWED_PREFIX = "v1/launchpad/";
 const BLOCKED_PREFIXES = ["v1/launchpad/webhooks/", "v1/launchpad/admin/"];
@@ -87,6 +87,11 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
 }
 
 export async function POST(req: NextRequest, ctx: RouteContext) {
+  const { path } = await ctx.params;
+  return forward(req, path);
+}
+
+export async function DELETE(req: NextRequest, ctx: RouteContext) {
   const { path } = await ctx.params;
   return forward(req, path);
 }
