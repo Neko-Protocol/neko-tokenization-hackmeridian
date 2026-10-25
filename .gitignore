@@ -14,3 +14,7 @@ contracts/.stellar/
 test_snapshots/
 __pycache__/
 *.pyc
+
+# Claim signing keys written by contracts/scripts/deploy-shared.sh. The public
+# key is recorded in deployments/<network>.json; the secret never leaves here.
+deployments/.claim-signing-key-*
