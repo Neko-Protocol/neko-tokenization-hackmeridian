@@ -27,7 +27,6 @@ import { ApplicationWizard } from "../ui/ApplicationWizard";
 import { AssistantPanel } from "../ui/AssistantPanel";
 
 const FORM_KEY = "neko-launchpad-form";
-const SUMMARY_TIMEOUT_MS = 20_000;
 
 interface Draft {
   values: ApplicationFormValues;
@@ -97,9 +96,8 @@ export function ApplicationWorkspace({
   );
   const [highlighted, setHighlighted] = useState<Set<FieldKey>>(new Set());
   const [submitted, setSubmitted] = useState<Application | null>(null);
-  const [stage, setStage] = useState<"idle" | "summary" | "sending">("idle");
+  const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [cleanupFailed, setCleanupFailed] = useState(false);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [discarding, setDiscarding] = useState(false);
   const timers = useRef<number[]>([]);
@@ -157,51 +155,19 @@ export function ApplicationWorkspace({
     if (await form.trigger(spec.fields)) goTo(stepRef.current + 1);
   }, [form, goTo]);
 
-  const summarize = async (application: unknown): Promise<string | undefined> => {
-    const controller = new AbortController();
-    const timer = window.setTimeout(() => controller.abort(), SUMMARY_TIMEOUT_MS);
-    try {
-      const token = await getAccessToken();
-      const res = await fetch("/api/assistant/summary", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          application,
-          transcript: assistant.items
-            .filter((i) => i.text)
-            .map((i) => ({ role: i.role, text: i.text })),
-        }),
-        signal: controller.signal,
-      });
-      if (!res.ok) return undefined;
-      const body = (await res.json()) as { summary: string | null };
-      return body.summary ?? undefined;
-    } catch {
-      return undefined;
-    } finally {
-      window.clearTimeout(timer);
-    }
-  };
-
   const send = async (valid: ApplicationFormValues) => {
     setError(null);
     const { payload } = buildPayload(valid);
     if (!payload) return;
     try {
-      setStage("summary");
-      const ai_summary = await summarize(payload);
-      setStage("sending");
+      setSending(true);
       const application = await create.mutateAsync({
         ...payload,
-        ...(ai_summary && { ai_summary }),
+        assistant_session_id: assistant.sessionId,
       });
       setSubmitted(application);
       clearForm();
-      try {
-        await assistant.close();
-      } catch {
-        setCleanupFailed(true);
-      }
+      assistant.markClosed();
     } catch (err) {
       setError(
         err instanceof BackendError && err.code === "ISSUER_NOT_VERIFIED"
@@ -211,7 +177,7 @@ export function ApplicationWorkspace({
             : "We couldn't send your application. Try again in a moment."
       );
     } finally {
-      setStage("idle");
+      setSending(false);
     }
   };
 
@@ -227,22 +193,16 @@ export function ApplicationWorkspace({
     const token = await getAccessToken();
     const data = new FormData();
     data.set("file", file);
-    const res = await fetch("/api/application/documents", {
+    const res = await fetch("/api/backend-proxy/v1/launchpad/applications/documents", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: data,
     });
     const body = (await res.json().catch(() => ({}))) as {
       document?: { name: string; url: string };
-      code?: string;
       message?: string;
     };
-    if (!res.ok || !body.document) {
-      throw new Error(
-        body.message ??
-          (body.code === "STORAGE_NOT_CONFIGURED" ? "Document storage isn't configured." : "Upload failed.")
-      );
-    }
+    if (!res.ok || !body.document) throw new Error(body.message ?? "Upload failed.");
     return body.document;
   };
 
@@ -250,7 +210,7 @@ export function ApplicationWorkspace({
     setDiscarding(true);
     clearForm();
     try {
-      await assistant.close();
+      await assistant.discard();
     } catch {}
     onExit();
   };
@@ -270,11 +230,6 @@ export function ApplicationWorkspace({
                 and compliance team. You&apos;ll see the status change on your dashboard.
               </p>
             </div>
-            {cleanupFailed && (
-              <Notice tone="error">
-                We couldn&apos;t confirm your uploaded documents were deleted. Contact Neko and we&apos;ll remove them.
-              </Notice>
-            )}
             <button
               type="button"
               onClick={onExit}
@@ -295,14 +250,8 @@ export function ApplicationWorkspace({
               highlighted={highlighted}
               onSubmit={submit}
               onUploadDocument={uploadDocument}
-              submitting={stage !== "idle"}
-              submitLabel={
-                stage === "summary"
-                  ? "Preparing review notes"
-                  : stage === "sending"
-                    ? "Sending"
-                    : "Submit for review"
-              }
+              submitting={sending}
+              submitLabel={sending ? "Sending" : "Submit for review"}
             />
             {error && (
               <Notice tone="error" className="mx-auto mt-3 w-full max-w-[540px]">
