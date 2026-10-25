@@ -41,6 +41,28 @@ impl RWATokenContract {
         RWA::set_compliance(e, &compliance);
         RWA::set_identity_verifier(e, &identity_verifier);
     }
+
+    /// Point the token at the issuer's on-chain identity.
+    ///
+    /// Added by Neko; the rest of this file is OpenZeppelin's RWA example
+    /// verbatim. SEP-57 lists `onchain_id` as token metadata, but the example
+    /// exposes only the getter, so `onchain_id()` panics with
+    /// `OnchainIdNotSet` on a freshly deployed token and nothing can ever set
+    /// it. The library has the setter; this publishes it behind the same
+    /// `manager` role as the token's other privileged calls.
+    ///
+    /// It is a setter rather than a constructor argument because the issuer's
+    /// identity contract does not necessarily exist when the token is
+    /// deployed, and because the factory's `create_vault` would otherwise need
+    /// to know about it.
+    ///
+    /// `version()` has the same gap and no fix: `stellar-tokens` v0.8.0 ships
+    /// no `set_version` at all, so that one stays broken until OpenZeppelin
+    /// adds one.
+    #[only_role(operator, "manager")]
+    pub fn set_onchain_id(e: &Env, onchain_id: Address, operator: Address) {
+        RWA::set_onchain_id(e, &onchain_id);
+    }
 }
 
 #[contractimpl(contracttrait)]
