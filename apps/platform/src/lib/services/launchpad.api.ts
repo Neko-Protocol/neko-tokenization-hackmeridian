@@ -70,14 +70,18 @@ export interface CreateApplicationInput {
   uses_mass_marketing: boolean;
   milestones: { title: string; amount_pct: number; due?: string }[];
   documents: { name: string; url: string }[];
-  ai_summary?: string;
+  /** The backend closes this assistant session and writes the reviewer summary. */
+  assistant_session_id?: string;
 }
 
 export interface Application
   extends Required<
     Omit<
       CreateApplicationInput,
-      "expected_yield_pct" | "term_months" | "max_investors" | "ai_summary"
+      | "expected_yield_pct"
+      | "term_months"
+      | "max_investors"
+      | "assistant_session_id"
     >
   > {
   id: string;
