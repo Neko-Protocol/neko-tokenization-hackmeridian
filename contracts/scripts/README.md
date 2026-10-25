@@ -10,6 +10,7 @@ Four scripts that take a fresh network to a working demo. They read and write
 ./deploy-vault.sh casa-escazu      # one vault: its token, compliance and the vault
 ./run-demo.sh casa-escazu          # the whole money path, with explorer links
 ./print-env.sh                     # the addresses as environment variables
+./gen-bindings.sh                  # the TypeScript clients the apps import
 ```
 
 `NETWORK=testnet` by default. Every script needs `stellar`, `jq`, `openssl` and
@@ -63,6 +64,12 @@ that investor's capital — with three roughly equal tranches and a 40% stake,
 one tranche is not enough. The vault rejects it with `InsufficientLiquidity`
 rather than paying out money it does not have, which is also what keeps the
 redemption pool from ever going short.
+
+**`gen-bindings.sh`** regenerates the typed clients in
+[`packages/bindings`](../../packages/bindings) from the built wasm, and
+normalises what the generator emits so a re-run reproduces what is committed.
+Run it whenever a contract's interface changes. Also available as
+`npm run contracts:bindings` from the repository root.
 
 ## Amounts
 

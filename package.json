@@ -3,7 +3,8 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "packages/bindings/*"
   ],
   "engines": {
     "node": ">=20"
@@ -17,7 +18,7 @@
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md,yml,yaml}\"",
     "contracts:build": "cd contracts && stellar contract build",
     "contracts:test": "cd contracts && cargo test",
-    "contracts:bindings": "cd contracts && for c in neko_vault neko_factory neko_milestone_tracker rwa_token_example; do stellar contract bindings typescript --wasm target/wasm32v1-none/release/$c.wasm --output-dir ../packages/bindings/$c --overwrite; done",
+    "contracts:bindings": "cd contracts && ./scripts/gen-bindings.sh",
     "deploy:shared": "cd contracts && ./scripts/deploy-shared.sh",
     "deploy:vault": "cd contracts && ./scripts/deploy-vault.sh",
     "demo": "cd contracts && ./scripts/run-demo.sh"
