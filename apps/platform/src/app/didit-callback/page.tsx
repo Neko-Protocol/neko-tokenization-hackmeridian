@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Spinner } from "@/components/ui/Spinner";
+import { ROUTES } from "@/lib/routes";
 
 export default function DiditCallbackPage() {
   useEffect(() => {
@@ -12,12 +13,12 @@ export default function DiditCallbackPage() {
         window.location.origin
       );
     } else {
-      window.location.replace("/");
+      window.location.replace(ROUTES.signup);
     }
   }, []);
 
   return (
-    <main className="flex min-h-screen items-center justify-center gap-3 bg-[#121212] p-8 text-center text-white/60">
+    <main className="flex min-h-screen items-center justify-center gap-3 bg-[#191918] p-8 text-center text-white/60">
       <Spinner /> Verification finished. Checking the result…
     </main>
   );
