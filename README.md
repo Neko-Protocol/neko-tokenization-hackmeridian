@@ -10,6 +10,8 @@ Neko is a live investing app on Stellar mainnet where people in Latin America ea
 
 Tokenizing is still hard, and even when you manage it, you have no buyers. Neko solves both.
 
+See the [roadmap](ROADMAP.md) for our business direction three to six months after the hackathon by bringing in issuers, connecting more opportunities to the existing Neko app, and growing distribution.
+
 ## Repositories
 
 | Repo                                                                                                          | What lives there                             |
@@ -56,6 +58,7 @@ For testnet deployment of the RWA contracts, follow [contracts/rwa/DEPLOY.md](co
 
 | Doc                                  | What it is                                                                                     |
 | ------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| [ROADMAP.md](ROADMAP.md)             | Business outlook for three to six months after the hackathon and how it connects to the existing Neko app |
 | [docs/plan.md](docs/plan.md)         | The working plan: demo slice, workstreams, checkpoints, roadmap                                |
 | [docs/diagrams.md](docs/diagrams.md) | Product flows                                                                                  |
 | [sessions/](sessions/)               | One log per work session: start and end time (WET), what we did, decisions, commits and AI use |
