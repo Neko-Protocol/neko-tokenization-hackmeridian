@@ -14,11 +14,11 @@ See the [roadmap](ROADMAP.md) for our business direction three to six months aft
 
 ## Repositories
 
-| Repo                                                                                                          | What lives there                             |
-| ------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| [neko-tokenization-hackmeridian](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian) (this repo) | Tokenization platform and tokenization admin |
-| [neko-backend-hackmeridian](https://github.com/Neko-Protocol/neko-backend-hackmeridian)                       | Backend                                      |
-| [neko-web-hackmeridian](https://github.com/Neko-Protocol/neko-web-hackmeridian)                               | Neko Pro, the investor web app               |
+| Repo                                                                                                          | What lives there                                                                                     |
+| ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| [neko-tokenization-hackmeridian](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian) (this repo) | Launchpad, tokenization admin, SEP-57 contracts, Neko Legal KB                                       |
+| [neko-backend-hackmeridian](https://github.com/Neko-Protocol/neko-backend-hackmeridian)                       | Backend: Launchpad KYC/KYB, accounts and testnet wallets, tokenization applications and admin review |
+| [neko-web-hackmeridian](https://github.com/Neko-Protocol/neko-web-hackmeridian)                               | Neko Pro, the investor web app, and the Supabase migrations                                          |
 
 The backend and web repos are forks of existing Neko code. Their git tag `pre-hackmeridian` marks what existed before the event; everything after it was built during HackMeridian. This repository was created during the event.
 
@@ -41,6 +41,14 @@ services/legal-kb/ Legal knowledge base (MCP server): securities, AML and data p
 docs/              Plans and diagrams
 sessions/          Hackathon work session logs
 ```
+
+## Tokenization admin
+
+`apps/admin` is where Neko reviews tokenization applications: a list by status, the asset and issuer details (KYB status, testnet wallet), approve, reject or request changes with a note, and a compliance checklist. The checklist is rule based (Costa Rica public offering test, SUGEVAL private offer accreditation, investor consent, SUGEF registration for virtual asset service providers, personal data, US investors, Mexico, Colombia and Argentina) and shows the real text of every article it cites, pulled from Neko Legal KB.
+
+## Neko Legal KB
+
+`services/legal-kb` is a legal knowledge base for tokenizing real-world assets, served to any AI over MCP and hosted on Google Cloud Run. It holds verbatim laws article by article (Costa Rica, the US, Mexico, Colombia, Argentina, and El Salvador as reference) plus cited obligations checklists. Tools: `search_law`, `get_article`, `list_norms`, `search_kb`, `get_document`, `list_documents`. Access is by token; see [services/legal-kb/README.md](services/legal-kb/README.md). Not legal advice.
 
 ## Stellar tools
 
@@ -68,12 +76,13 @@ For testnet deployment of the RWA contracts, follow [contracts/rwa/DEPLOY.md](co
 
 ## How we built it
 
-| Doc                                  | What it is                                                                                     |
-| ------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| Doc                                  | What it is                                                                                                |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------- |
 | [ROADMAP.md](ROADMAP.md)             | Business outlook for three to six months after the hackathon and how it connects to the existing Neko app |
-| [docs/plan.md](docs/plan.md)         | The working plan: demo slice, workstreams, checkpoints, roadmap                                |
-| [docs/diagrams.md](docs/diagrams.md) | Product flows                                                                                  |
-| [sessions/](sessions/)               | One log per work session: start and end time (WET), what we did, decisions, commits and AI use |
+| [docs/plan.md](docs/plan.md)         | The working plan: demo slice, workstreams, checkpoints, roadmap                                           |
+| [docs/deploy.md](docs/deploy.md)     | How to deploy the backend (Railway), the web apps (Vercel) and the database                               |
+| [docs/diagrams.md](docs/diagrams.md) | Product flows                                                                                             |
+| [sessions/](sessions/)               | One log per work session: start and end time (WET), what we did, decisions, commits and AI use            |
 
 ## Team
 

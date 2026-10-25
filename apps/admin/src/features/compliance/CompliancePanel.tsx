@@ -11,6 +11,7 @@ import {
 
 import { SectionCard } from "@/components/ui/SectionCard";
 import { Spinner } from "@/components/ui/Spinner";
+import { useAuth } from "@/features/auth/AuthContext";
 import type {
   AdminApplicationView,
   ComplianceStatus,
@@ -136,14 +137,20 @@ export function CompliancePanel({
 }: {
   application: AdminApplicationView;
 }) {
+  const { accessToken } = useAuth();
   const [load, setLoad] = useState<PanelState | null>(null);
 
   useEffect(() => {
+    if (!accessToken) return;
+
     let cancelled = false;
     void fetch("/api/compliance", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ application }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ id: application.id }),
     })
       .then(async (res) => {
         if (!res.ok) throw new Error("Compliance request failed");
@@ -166,7 +173,7 @@ export function CompliancePanel({
     return () => {
       cancelled = true;
     };
-  }, [application]);
+  }, [application.id, accessToken]);
 
   const loading = load?.id !== application.id;
   const error = !loading && load?.status === "error" ? load.message : null;
