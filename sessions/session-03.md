@@ -9,25 +9,25 @@
 
 **Fabián**
 
-1. KYC/KYB for issuers in the Launchpad.
-2. Account creation with Privy: a testnet wallet for each verified issuer.
-3. Roadmap.
+1. KYC/KYB for issuers in the Launchpad: done.
+2. Account creation with Privy, a testnet wallet for each verified issuer: done.
+3. Roadmap: done.
 
 **Matías**
 
-1. Token.
-2. Compliance (in progress).
-3. Vault (in progress).
+1. Token: done.
+2. Compliance: in progress.
+3. Vault: in progress.
 
 **Kevin**
 
-1. Launch and display on Neko Pro.
+1. Launch and display on Neko Pro: done.
 2. Dashboard to see the tokens: 50%.
 
 **Santiago**
 
-1. Tokenization admin: list of applications, detail with issuer data, approve, reject or request changes, and a compliance checklist.
-2. Neko Legal KB: a legal knowledge base for tokenization, served over MCP on Google Cloud Run. Verbatim laws article by article for Costa Rica (securities, public offering, anti money laundering with SUGEF registration, personal data), the US (Regulation D, S and Crowdfunding), Mexico, Colombia and Argentina, plus an obligations checklist where every point cites its article.
+1. Tokenization admin, done: list of applications, detail with issuer data, approve, reject or request changes, and a compliance checklist.
+2. Neko Legal KB, done: a legal knowledge base for tokenization, served over MCP on Google Cloud Run. Verbatim laws article by article for Costa Rica (securities, public offering, anti money laundering with SUGEF registration, personal data), the US (Regulation D, S and Crowdfunding), Mexico, Colombia and Argentina, plus an obligations checklist where every point cites its article.
 3. Next: pitch and submission.
 
 ## Decisions
@@ -60,7 +60,7 @@ This repo:
 
 ## Next session
 
-Finish the AI-assisted form, token, compliance and vault; deploy; run the full path on testnet; pitch and submission material.
+Finish the AI-assisted form, the token compliance and vault, and the dashboard; deploy; run the full path on testnet; pitch and submission material.
 
 ## AI use
 
