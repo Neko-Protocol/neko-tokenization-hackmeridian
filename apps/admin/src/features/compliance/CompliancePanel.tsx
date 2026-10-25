@@ -19,6 +19,7 @@ import type {
   EnrichedComplianceCheck,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { SimilarCases } from "./SimilarCases";
 
 const STATUS_META: Record<
   ComplianceStatus,
@@ -245,6 +246,7 @@ export function CompliancePanel({
           </p>
         </>
       )}
+      <SimilarCases applicationId={application.id} />
     </SectionCard>
   );
 }

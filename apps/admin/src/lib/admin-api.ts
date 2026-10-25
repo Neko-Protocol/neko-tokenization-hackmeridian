@@ -3,6 +3,7 @@ import type {
   ApplicationStatus,
   ApplicationView,
   Decision,
+  SimilarApplicationsResponse,
 } from "@/lib/types";
 
 const PROXY_BASE = "/api/backend-proxy";
@@ -124,6 +125,16 @@ export function getApplication(
 ): Promise<AdminApplicationView> {
   return request<AdminApplicationView>(
     `/v1/launchpad/admin/applications/${encodeURIComponent(id)}`,
+    { token }
+  );
+}
+
+export function getSimilarApplications(
+  token: string,
+  id: string
+): Promise<SimilarApplicationsResponse> {
+  return request<SimilarApplicationsResponse>(
+    `/v1/launchpad/admin/applications/${encodeURIComponent(id)}/similar?limit=5`,
     { token }
   );
 }
