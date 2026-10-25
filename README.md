@@ -52,11 +52,10 @@ sessions/          Hackathon work session logs
 
 ## Stellar tools
 
-- Soroban smart contracts using OpenZeppelin [stellar-contracts](https://github.com/OpenZeppelin/stellar-contracts) (SEP-57 RWA stack)
+- Soroban smart contracts using OpenZeppelin [stellar-contracts](https://github.com/OpenZeppelin/stellar-contracts) (SEP-57 RWA stack), plus Neko's own factory, vault and milestone tracker — see [contracts/README.md](contracts/README.md)
 - [Stellar CLI](https://developers.stellar.org/docs/tools/cli) for build and deploy
 - [@stellar/stellar-sdk](https://www.npmjs.com/package/@stellar/stellar-sdk) in apps and `packages/stellar`
 - [@creit.tech/stellar-wallets-kit](https://www.npmjs.com/package/@creit.tech/stellar-wallets-kit) for wallet connection (planned in UI)
-- [Trustless Work](https://trustless.work/) milestone escrow (planned integration)
 - [stellar.expert](https://stellar.expert/) explorer links via `packages/stellar`
 - Testnet funding via [friendbot](https://laboratory.stellar.org/#account-creator?network=test)
 
