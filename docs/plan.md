@@ -2,7 +2,7 @@
 
 **Result we want:** one complete path that judges can try alone on testnet. A business tokenizes an asset through the Launchpad, a verified investor buys it in Neko Pro, the money is released by milestones, and every step can be checked on stellar.expert.
 
-**Deadline:** submission closes 26 Oct 2026, 12:00 WET. Owners per workstream are assigned in session 02.
+**Deadline:** submission closes 26 Oct 2026, 12:00 WET.
 
 ## Do now (session 02)
 
@@ -10,7 +10,7 @@
 2. Lock the pitch basics in one sentence each: problem, who it is for, solution, product names.
 3. Lock the demo slice below and agree on what is real and what is simulated.
 4. Write the demo case: one fictional asset with amount, rate, minimum ticket and 3 milestones.
-5. Assign an owner to each workstream and start building.
+5. ~~Assign an owner to each workstream and start building~~ Done: see [Who does what](#who-does-what).
 
 ## Repositories
 
@@ -19,6 +19,27 @@
 | [neko-tokenization-hackmeridian](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian) (this repo, main) | Tokenization platform (Launchpad) and tokenization admin, plan, diagrams and session logs |
 | [neko-backend-hackmeridian](https://github.com/Neko-Protocol/neko-backend-hackmeridian)                             | Backend (fork of neko-backend), tagged `pre-hackmeridian`                                 |
 | [neko-web-hackmeridian](https://github.com/Neko-Protocol/neko-web-hackmeridian)                                     | Neko Pro, the investor web app (fork of neko-web), tagged `pre-hackmeridian`              |
+
+## Who does what
+
+| Repo                                  | Task                                                                            | Owner            |
+| ------------------------------------- | ------------------------------------------------------------------------------- | ---------------- |
+| Launchpad (this repo)                 | Base setup                                                                      | Santiago         |
+| Launchpad                             | KYC/KYB                                                                         | Fabián           |
+| Launchpad                             | Create account: Privy wallet for the user, linked to KYC (research C-addresses) | Fabián           |
+| Launchpad                             | AI-assisted form                                                                | Fabián, Santiago |
+| Launchpad                             | Tokenization process: factory, token, escrow                                    | Matías           |
+| Launchpad                             | Launch and display on Neko Pro                                                  | Kevin            |
+| Launchpad                             | Issuer dashboard with the user's tokenized assets                               | Kevin            |
+| Neko Pro (web and backend forks)      | KYC/KYB                                                                         | Fabián           |
+| Neko Pro                              | Assets showcase and asset detail                                                | Kevin            |
+| Neko Pro                              | Asset buy and sell                                                              | Matías, Kevin    |
+| Neko admin (in this repo, apps/admin) | Approve or reject tokenization proposals                                        | Santiago         |
+| Neko admin                            | Legal compliance                                                                | Santiago         |
+| Submission                            | Pitch deck                                                                      | Kevin            |
+| Submission                            | Roadmap                                                                         | Fabián           |
+| Submission                            | Video                                                                           | Everyone         |
+| Submission                            | llms.txt, robots.txt and sitemap.xml for the main repo                          | Fabián           |
 
 ## The demo slice
 
