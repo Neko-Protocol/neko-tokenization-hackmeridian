@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const ALLOWED_PREFIX = "v1/launchpad/";
-const BLOCKED_PREFIX = "v1/launchpad/webhooks/";
+const BLOCKED_PREFIXES = ["v1/launchpad/webhooks/", "v1/launchpad/admin/"];
 
 const HOP_BY_HOP = new Set([
   "connection",
@@ -33,7 +33,10 @@ async function forward(
   }
 
   const path = pathSegments.map(encodeURIComponent).join("/");
-  if (!path.startsWith(ALLOWED_PREFIX) || path.startsWith(BLOCKED_PREFIX)) {
+  if (
+    !path.startsWith(ALLOWED_PREFIX) ||
+    BLOCKED_PREFIXES.some((prefix) => path.startsWith(prefix))
+  ) {
     return NextResponse.json({ code: "NOT_FOUND" }, { status: 404 });
   }
 
