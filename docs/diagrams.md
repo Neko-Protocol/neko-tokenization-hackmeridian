@@ -43,3 +43,61 @@ flowchart LR
 flowchart LR
   K["1. KYC / KYB"] --> O["2. Opportunities<br/>with filters"] --> P["3. Dashboard"]
 ```
+
+## 4. The money, end to end
+
+How a vault's cash actually moves. Source: `contracts/vault/`.
+
+```mermaid
+sequenceDiagram
+  participant I as Investors
+  participant V as Vault
+  participant T as Vault token
+  participant B as Issuer (borrower)
+
+  Note over I,B: Funding
+  I->>V: invest(USDC)
+  V->>T: mint 1:1 (fails without KYC)
+  T-->>I: vault tokens
+  V->>B: release the raise
+
+  Note over I,B: Repayment, tranche by tranche
+  B->>V: repay(tranche 1..n)
+  Note over V: at the full amount with interest,<br/>the supply is frozen and the vault settles
+
+  Note over I,B: Payout
+  I->>V: redeem()
+  V->>T: burn the investor's tokens
+  V-->>I: share of everything repaid
+```
+
+Leaving early: `early_exit()` returns the capital minus the exit fee and burns the
+tokens, out of whatever the borrower has repaid so far. The forfeited interest
+stays in the pot, so the holders who stay collect slightly more than their
+headline rate.
+
+## 5. The contracts
+
+```mermaid
+flowchart TB
+  subgraph shared["Shared, deployed once"]
+    CTI["Claim topics<br/>and issuers"]
+    CI["Claim issuer"]
+    IR["Identity registry"]
+    IV["Identity verifier"]
+    F["Factory"]
+    MT["Milestone tracker"]
+  end
+  subgraph vault["Per vault, deployed by the factory"]
+    TK["SEP-57 token"]
+    CO["Compliance"]
+    VA["Vault"]
+  end
+  ID["Identity<br/>(one per investor)"]
+
+  F -.deploys.-> TK & CO & VA
+  TK --> IV --> IR --> ID
+  IV --> CTI --> CI
+  TK --> CO
+  VA -->|mint and burn| TK
+```

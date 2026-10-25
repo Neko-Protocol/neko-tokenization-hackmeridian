@@ -28,7 +28,7 @@
 | Launchpad                        | KYC/KYB                                                                         | Fabián        |
 | Launchpad                        | Create account: Privy wallet for the user, linked to KYC (research C-addresses) | Fabián        |
 | Launchpad                        | AI-assisted form                                                                | Fabián        |
-| Launchpad                        | Tokenization process: factory, token, escrow                                    | Matías        |
+| Launchpad                        | Tokenization process: factory, token, vault, milestone tracker                  | Matías        |
 | Launchpad                        | Launch and display on Neko Pro                                                  | Kevin         |
 | Launchpad                        | Issuer dashboard with the user's tokenized assets                               | Kevin         |
 | Neko Pro (web and backend forks) | KYC/KYB                                                                         | Fabián        |
@@ -46,16 +46,20 @@
 What we build and show, end to end, on testnet:
 
 1. **Issuer, Launchpad:** KYB (test data), AI-assisted form, approval in the tokenization admin, wallet created, SEP-57 token issued, opportunity launched, issuer dashboard.
-2. **Investor, Neko Pro:** KYC (test data), opportunities with filters, buy from a minimum amount, funds held in Trustless Work escrow, dashboard showing the investment and each payment or milestone release.
+2. **Investor, Neko Pro:** KYC (test data), opportunities with filters, buy from a minimum amount, funds held in the vault, dashboard showing the investment and each tranche the borrower repays.
 3. **Issuer that already tokenizes:** shown as a listing in Neko Pro. Neko already reads Etherfuse data in production, so an Etherfuse asset is the natural example.
 
 Only KYC/KYB-verified wallets can hold the token. SEP-57 enforces this in the contract through its identity registry.
+
+**The money is a loan, not a share of the property.** The issuer borrows against the asset, investors deposit USDC and get vault tokens one for one, the raise goes to the issuer, and the issuer repays in tranches. Once the full amount with interest is in, each investor redeems their share: at 13% on a 100,000 raise, 1,000 invested comes back as 1,130. Leaving before maturity returns the capital minus an exit fee and gives up the interest, which leaves a little more for the holders who stay.
+
+This replaces the Trustless Work escrow described in the earlier version of this plan. An escrow holds money and releases it from one payer to one receiver against deliverables; here one borrower repays many investors in proportion to what each put in, and its contracts cannot express that — each of its milestones pays a single `receiver`. The repayment side is `contracts/vault/` instead. Trustless Work still fits the funding leg, where many pay and one receives, and its repository has no licence file, so copying its code needs their permission first.
 
 ## Workstreams
 
 | Workstream           | What it delivers                                                                                                                                                             |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| On-chain             | SEP-57 token (OpenZeppelin) with identity registry; Trustless Work milestone escrow; testnet accounts with "neko" in the name; transaction links                             |
+| On-chain             | SEP-57 token (OpenZeppelin) with a shared identity registry; factory, vault and milestone tracker; testnet accounts with "neko" in the name; transaction links               |
 | Launchpad (issuer)   | KYB step, AI-assisted form, approval view in admin, wallet creation, launch, issuer dashboard                                                                                |
 | Neko Pro (investor)  | KYC step, opportunities with filters, buy flow, investor dashboard with auditable payments                                                                                   |
 | Story and submission | Problem with a real quote, deck on the official template, 2 to 4 minute video, README, AGENTS.md, llms.txt, robots.txt, sitemap.xml, stellar.toml, portal form, session logs |
@@ -63,7 +67,7 @@ Only KYC/KYB-verified wallets can hold the token. SEP-57 enforces this in the co
 ## Checkpoints
 
 1. Tag created and work split.
-2. Token and escrow working on testnet.
+2. Token and vault working on testnet.
 3. First internal demo on a real phone: only what works is discussed.
 4. Full path working end to end.
 5. Feature freeze. From here on only fixes, polish and submission material.

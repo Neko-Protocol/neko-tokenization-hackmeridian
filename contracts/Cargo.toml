@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["rwa/*"]
+members = ["rwa/*", "vault", "factory", "milestone-tracker"]
 
 [workspace.package]
 authors = ["Neko"]

@@ -146,6 +146,9 @@ fn main() {
     sig_data.extend_from_slice(&public_key);
     sig_data.extend_from_slice(&signature);
 
+    // The public key is what `allow_key` on the claim issuer expects, so
+    // printing it here lets a deploy script stay self-contained.
+    println!("--public-key {}", hex_encode(&public_key));
     println!("--data      {}", hex_encode(&claim_data));
     println!("--signature {}", hex_encode(&sig_data));
 }

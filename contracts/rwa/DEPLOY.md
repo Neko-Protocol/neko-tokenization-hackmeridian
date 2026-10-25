@@ -2,6 +2,16 @@
 
 > Adapted from the OpenZeppelin stellar-contracts v0.8.0 RWA examples guide (MIT, see [LICENSE-OPENZEPPELIN](LICENSE-OPENZEPPELIN)).
 
+> **For Neko, use the scripts instead.** [`../scripts/`](../scripts/) does all of
+> this and the vault contracts on top, in four commands. Read this page once to
+> see what they automate, and come back to it when something needs doing by
+> hand. Two differences to know: the scripts generate their own claim signing
+> key rather than the all-zeroes example one below, and the compliance modules
+> in step 9 are not in this repository — they are OpenZeppelin examples we have
+> not copied, so no module is registered and the compliance contract currently
+> allows every operation. See the known limitations in
+> [`../README.md`](../README.md).
+
 This guide demonstrates how to deploy a complete RWA token system on Stellar testnet. More information about RWAs can be found in the dedicated [library module](https://github.com/OpenZeppelin/stellar-contracts/tree/v0.8.0/packages/tokens/src/rwa) and in the official OpenZeppelin [docs](https://docs.openzeppelin.com/stellar-contracts/tokens/rwa/rwa).
 
 ## Architecture Overview
