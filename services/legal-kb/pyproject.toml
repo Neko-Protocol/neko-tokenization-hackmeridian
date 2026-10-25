@@ -1,0 +1,18 @@
+[project]
+name = "neko-legal-kb"
+version = "0.1.0"
+description = "Legal knowledge base for tokenizing real-world assets with Neko: verbatim securities, AML and data protection laws served over MCP"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+neko-legal-kb = "neko_legal_kb.cli:main"
+neko-legal-kb-mcp = "neko_legal_kb.mcp_server:main"
+neko-legal-kb-http = "neko_legal_kb.http_server:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

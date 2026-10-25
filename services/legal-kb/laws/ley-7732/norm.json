@@ -1,0 +1,32 @@
+{
+  "id": "ley-7732",
+  "title": "Ley Reguladora del Mercado de Valores",
+  "number": "7732",
+  "type": "ley",
+  "area": "valores",
+  "rank": "ley",
+  "version_date": "2026-09-02",
+  "source_url": "https://sinalevi.go.cr/ResultadosNormativa/Informacion?param1=29302&param2=152298&param3=1",
+  "retrieved_at": "2026-10-25",
+  "source_sha256": "6e47e9bc596f51ed01411479836c39e98dd598739f0184bf2a0580fb53c1d660",
+  "units": 212,
+  "articles": 203,
+  "transitorios": 9,
+  "anexos": 0,
+  "derogados": 2,
+  "warnings": [
+    "articulo 115: path polluted: CAPÍTULO I ANOTACIONES EN CUENTA",
+    "articulo 116: path polluted: CAPÍTULO I ANOTACIONES EN CUENTA",
+    "articulo 117: path polluted: CAPÍTULO I ANOTACIONES EN CUENTA",
+    "articulo 118: path polluted: CAPÍTULO I ANOTACIONES EN CUENTA",
+    "articulo 119: path polluted: CAPÍTULO I ANOTACIONES EN CUENTA",
+    "articulo 120: path polluted: CAPÍTULO I ANOTACIONES EN CUENTA",
+    "articulo 121: path polluted: CAPÍTULO I ANOTACIONES EN CUENTA",
+    "articulo 122: path polluted: CAPÍTULO I ANOTACIONES EN CUENTA",
+    "articulo 123: path polluted: CAPÍTULO I ANOTACIONES EN CUENTA",
+    "articulo 124: path polluted: CAPÍTULO I ANOTACIONES EN CUENTA",
+    "articulo 125: path polluted: CAPÍTULO I ANOTACIONES EN CUENTA"
+  ],
+  "scij_version_label": "14 de 14",
+  "scij_article_count": 203
+}
