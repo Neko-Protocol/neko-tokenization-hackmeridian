@@ -1,0 +1,25 @@
+# Neko Tokenization: HackMeridian
+
+> Evaluation entry point for Neko's HackMeridian 2026 tokenization project on Stellar. This repository contains the issuer Launchpad, tokenization admin, Soroban RWA contracts, and legal knowledge base. The backend and investor app live in separate repositories.
+
+Neko's idea is to solve both issuance and distribution: help businesses tokenize real-world assets, then connect their offerings to eligible investors through Neko. Launchpad is the issuer experience; Neko (opportunities) is the verified-investor tier and experience. The README describes the existing Neko investing app as live on Stellar mainnet, with investments from $5. That is background about the existing product, not evidence that this hackathon tokenization flow is live on mainnet. The hackathon demo targets testnet.
+
+This file is a navigation aid, not evidence that a feature is complete. When evaluating a checkout, read its local files first. GitHub links below use main for discovery and may differ from the branch being reviewed. For reproducible findings, record the commit of each repository and cite source paths and symbols at that revision. Uncommitted files describe local work only.
+
+## Start here
+
+- [README](README.md): Product purpose, repository ownership, setup, and Stellar tooling. Read first.
+- [Implementation plan](docs/plan.md): Intended demo journey, workstreams, and event scope. Planned work is not a completion report.
+- [Product diagrams](docs/diagrams.md): Intended issuer, investor, and admin flows; verify each step against code.
+- [Business roadmap](ROADMAP.md): Aspirations for three to six months after the event, not shipped functionality.
+- [Repository source sitemap](sitemap.xml): Curated raw-file URLs for this repo's main branch; not an inventory of deployed application pages.
+
+## Repository boundaries and integration
+
+- [Tokenization repository](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian): This Turborepo monorepo. Next.js App Router apps in apps/platform and apps/admin, shared TypeScript package in packages/stellar, Rust contracts in contracts, Python service (for RAG in AI-assisted tokenization proposal) in services/legal-kb. This repository was created during the event.
+- [Backend repository](https://github.com/Neko-Protocol/neko-backend-hackmeridian): Shared NestJS backend. Start at src/app.module.ts, src/domains/launchpad, src/core/didit, and src/domains/platform/admin-auth. Launchpad verification/account services connect Didit, Privy embedded Stellar wallets, and Supabase. 
+- [Investor web repository](https://github.com/Neko-Protocol/neko-web-hackmeridian): Next.js investor app, including existing Neko functionality. Start at src/app, src/features, and supabase/migrations.
+
+The backend and investor web repos are forks of pre-existing Neko code. Their pre-hackmeridian tag marks the event baseline according to README.md and sessions/session-02.md. Evaluate the diff from that tag to the reviewed commit in each fork. Do not count the whole fork as hackathon work.
+
+The intended journey is: issuer verification, application preparation, human legal/compliance review, token issuance, investor discovery and verification, investment and milestone payments. It spans all three repos.
