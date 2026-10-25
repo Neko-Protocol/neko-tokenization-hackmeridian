@@ -2,7 +2,7 @@
 
 Legal knowledge base for tokenizing real-world assets with Neko, served to any AI over MCP. Verbatim laws stored article by article (with version date, source URL and hash), plus a cited obligations checklist.
 
-Origin: adapted from the [cr-tax-kb](https://github.com/Villarley/cr-tax-kb) engine (Python 3.12, standard library only, BM25 over SQLite FTS5). Not legal advice: final positions belong to a licensed lawyer.
+Engine: Python 3.12, standard library only, BM25 over SQLite FTS5. Not legal advice: final positions belong to a licensed lawyer.
 
 ## What is inside
 

@@ -71,6 +71,7 @@ For testnet deployment of the RWA contracts, follow [contracts/rwa/DEPLOY.md](co
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------- |
 | [ROADMAP.md](ROADMAP.md)             | Business outlook for three to six months after the hackathon and how it connects to the existing Neko app |
 | [docs/plan.md](docs/plan.md)         | The working plan: demo slice, workstreams, checkpoints, roadmap                                           |
+| [docs/deploy.md](docs/deploy.md)     | How to deploy the backend (Railway), the web apps (Vercel) and the database                               |
 | [docs/diagrams.md](docs/diagrams.md) | Product flows                                                                                             |
 | [sessions/](sessions/)               | One log per work session: start and end time (WET), what we did, decisions, commits and AI use            |
 

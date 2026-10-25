@@ -1,7 +1,5 @@
 # Hosting the MCP server
 
-Origin: adapted from the cr-tax-kb engine (github.com/Villarley/cr-tax-kb).
-
 The stdio server (`mcp_server.py`) only works for MCP clients on the same machine. To use the knowledge base from Claude on the web or phone (custom connectors), run the HTTP server (`http_server.py`) at a public HTTPS URL. It serves the same tools, has no dependencies, and needs no database: the search index is built in memory at start (well under a second).
 
 ## How access works
