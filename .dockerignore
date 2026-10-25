@@ -1,0 +1,10 @@
+.git
+**/node_modules
+**/.next
+**/.turbo
+**/dist
+contracts/target
+**/__pycache__
+**/.pytest_cache
+services/legal-kb/laws/.cache
+services/legal-kb/tests

@@ -22,7 +22,7 @@ curl -s -X POST localhost:8080/mcp/dev -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
 
-Or with Docker: `docker build -t neko-legal-kb . && docker run -p 8080:8080 -e NEKO_LEGAL_KB_TOKEN=dev neko-legal-kb`.
+Or with Docker (from `services/legal-kb`: `docker build -t neko-legal-kb .`; from the repo root: `docker build -f services/legal-kb/Dockerfile -t neko-legal-kb .`) then `docker run -p 8080:8080 -e NEKO_LEGAL_KB_TOKEN=dev neko-legal-kb`.
 
 ## Deploy on Google Cloud Run
 
