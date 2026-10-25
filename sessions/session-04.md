@@ -28,6 +28,7 @@
 ## Decisions
 
 - The pitch work moves to its own thread.
+- KYC is taken out of Neko Pro for the demo.
 - Deploy targets: backend on Railway, Launchpad, admin and Neko Pro on Vercel, Neko Legal KB stays on Google Cloud Run.
 - The applications migration lives with the other Supabase migrations in neko-web-hackmeridian (`0030_launchpad_applications.sql`).
 
@@ -44,12 +45,17 @@
 
 ## Open questions
 
-- KYB and KYC in Neko Pro.
 - Backend deploy on Railway, then connect the three Vercel apps to it.
 
 ## Next session
 
-Deploy, integrate the contracts in the frontend, run the full path on testnet, record the video, close the deck and submit before 12:00 WET.
+1. Deploy everything.
+2. Take KYC out of Neko Pro.
+3. Join the parts and review what can be improved.
+4. Remove the mocks in Neko Pro.
+5. Disable mainnet options on testnet, keeping the tabs.
+6. Pitch deck ready, with the narrative and which videos appear.
+7. Draft the submission in the HackMeridian portal.
 
 ## AI use
 
