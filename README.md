@@ -20,6 +20,38 @@ Tokenizing is still hard, and even when you manage it, you have no buyers. Neko 
 
 The backend and web repos are forks of existing Neko code. Their git tag `pre-hackmeridian` marks what existed before the event; everything after it was built during HackMeridian. This repository was created during the event.
 
+## What is in this repo
+
+```
+apps/platform/     Launchpad for issuers (Next.js, port 3000)
+apps/admin/        Tokenization admin (Next.js, port 3001)
+packages/stellar/  Shared Stellar network config, RPC/Horizon clients, explorer links, friendbot
+contracts/         SEP-57 RWA token suite (Soroban, OpenZeppelin examples)
+docs/              Plans and diagrams
+sessions/          Hackathon work session logs
+```
+
+## Stellar tools
+
+- Soroban smart contracts using OpenZeppelin [stellar-contracts](https://github.com/OpenZeppelin/stellar-contracts) (SEP-57 RWA stack)
+- [Stellar CLI](https://developers.stellar.org/docs/tools/cli) for build and deploy
+- [@stellar/stellar-sdk](https://www.npmjs.com/package/@stellar/stellar-sdk) in apps and `packages/stellar`
+- [@creit.tech/stellar-wallets-kit](https://www.npmjs.com/package/@creit.tech/stellar-wallets-kit) for wallet connection (planned in UI)
+- [Trustless Work](https://trustless.work/) milestone escrow (planned integration)
+- [stellar.expert](https://stellar.expert/) explorer links via `packages/stellar`
+- Testnet funding via [friendbot](https://laboratory.stellar.org/#account-creator?network=test)
+
+## Getting started
+
+1. Copy `.env.example` to `apps/platform/.env.local` and `apps/admin/.env.local`.
+2. `npm install`
+3. `npm run dev` (Launchpad on http://localhost:3000, admin on http://localhost:3001)
+4. `npm run build`
+5. `npm run contracts:test`
+6. `npm run contracts:build`
+
+For testnet deployment of the RWA contracts, follow [contracts/rwa/DEPLOY.md](contracts/rwa/DEPLOY.md).
+
 ## How we built it
 
 | Doc                                  | What it is                                                                                     |
