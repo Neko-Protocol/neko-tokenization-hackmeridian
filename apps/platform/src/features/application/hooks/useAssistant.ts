@@ -28,6 +28,7 @@ export interface AssistantDocument {
 }
 
 const STORAGE_KEY = "neko-launchpad-assistant";
+const API = "/api/backend-proxy/v1/launchpad/assistant";
 
 interface Persisted {
   sessionId: string;
@@ -67,7 +68,6 @@ async function readError(res: Response): Promise<string> {
     const body = (await res.json()) as { code?: string; message?: string };
     if (body.message) return body.message;
     if (body.code === "SESSION_CLOSED") return "This assistant session is closed.";
-    if (body.code === "STORAGE_NOT_CONFIGURED") return "Document storage isn't configured.";
     if (body.code === "ISSUER_NOT_VERIFIED") return "Your verification must be approved first.";
   } catch {}
   return `Request failed (${res.status}).`;
@@ -114,10 +114,9 @@ export function useAssistant({
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(
-          `/api/assistant/documents?sessionId=${encodeURIComponent(sessionId)}`,
-          { headers: await authed() }
-        );
+        const res = await fetch(`${API}/sessions/${sessionId}/documents`, {
+          headers: await authed(),
+        });
         if (!res.ok) return;
         const body = (await res.json()) as { documents: AssistantDocument[] };
         if (!cancelled) setDocuments(body.documents);
@@ -147,16 +146,16 @@ export function useAssistant({
       const controller = new AbortController();
       abortRef.current = controller;
       try {
-        const res = await fetch("/api/assistant/chat", {
+        const res = await fetch(`${API}/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json", ...(await authed()) },
           body: JSON.stringify({
-            sessionId,
+            session_id: sessionId,
             messages: history
               .map((i) => ({ role: i.role, text: i.role === "user" ? i.text : historyText(i) }))
               .filter((m) => m.text),
             form: formRef.current,
-            activeField: activeRef.current,
+            ...(activeRef.current && { active_field: activeRef.current }),
           }),
           signal: controller.signal,
         });
@@ -216,9 +215,8 @@ export function useAssistant({
         setUploading((n) => n + 1);
         try {
           const data = new FormData();
-          data.set("sessionId", sessionId);
           data.set("file", file);
-          const res = await fetch("/api/assistant/documents", {
+          const res = await fetch(`${API}/sessions/${sessionId}/documents`, {
             method: "POST",
             headers: await authed(),
             body: data,
@@ -240,10 +238,10 @@ export function useAssistant({
     async (path: string) => {
       setDocuments((prev) => prev.filter((d) => d.path !== path));
       try {
-        await fetch("/api/assistant/documents", {
+        const name = path.split("/").pop() ?? "";
+        await fetch(`${API}/sessions/${sessionId}/documents/${encodeURIComponent(name)}`, {
           method: "DELETE",
-          headers: { "Content-Type": "application/json", ...(await authed()) },
-          body: JSON.stringify({ sessionId, path }),
+          headers: await authed(),
         });
       } catch {
         setNotice("Couldn't delete that file. It will be removed when you submit.");
@@ -252,19 +250,23 @@ export function useAssistant({
     [authed, sessionId]
   );
 
-  const close = useCallback(async () => {
+  /** Locks the chat after submit; the backend already closed the session. */
+  const markClosed = useCallback(() => {
     abortRef.current?.abort();
     setClosed(true);
+    setDocuments([]);
     savePersisted(null);
-    if (!sessionId) return;
-    const res = await fetch("/api/assistant/documents", {
+  }, []);
+
+  /** Discards the session: the backend deletes its documents and closes the chat. */
+  const discard = useCallback(async () => {
+    markClosed();
+    const res = await fetch(`${API}/sessions/${sessionId}`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json", ...(await authed()) },
-      body: JSON.stringify({ sessionId, close: true }),
+      headers: await authed(),
     });
     if (!res.ok) throw new Error(await readError(res));
-    setDocuments([]);
-  }, [authed, sessionId]);
+  }, [authed, markClosed, sessionId]);
 
   return {
     sessionId,
@@ -279,6 +281,7 @@ export function useAssistant({
     stop: () => abortRef.current?.abort(),
     upload,
     removeDocument,
-    close,
+    markClosed,
+    discard,
   };
 }
