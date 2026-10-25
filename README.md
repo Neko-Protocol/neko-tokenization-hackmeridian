@@ -45,11 +45,13 @@ sessions/          Hackathon work session logs
 ## Getting started
 
 1. Copy `.env.example` to `apps/platform/.env.local` and `apps/admin/.env.local`.
-2. `npm install`
-3. `npm run dev` (Launchpad on http://localhost:3000, admin on http://localhost:3001)
-4. `npm run build`
-5. `npm run contracts:test`
-6. `npm run contracts:build`
+2. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and (for the admin compliance panel) `NEKO_LEGAL_KB_URL`.
+3. `npm install`
+4. `npm run dev` (Launchpad on http://localhost:3000, admin on http://localhost:3001)
+5. Admin sign-in: open http://localhost:3001/login with an email listed in the backend `admin_emails` allowlist, then enter the 6-digit code.
+6. `npm run build`
+7. `npm run contracts:test`
+8. `npm run contracts:build`
 
 For testnet deployment of the RWA contracts, follow [contracts/rwa/DEPLOY.md](contracts/rwa/DEPLOY.md).
 
