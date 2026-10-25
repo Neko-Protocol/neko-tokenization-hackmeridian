@@ -36,7 +36,7 @@
 - [#7](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian/pull/7): AI form owner, session 03 log, README update (Santiago)
 - [#8](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian/pull/8): admin hardening and deploy guide (Santiago)
 - [#9](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian/pull/9): vault, factory and milestone tracker contracts (Matías)
-- [#10](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian/pull/10) and [#12](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian/pull/12): tokenization proposal form with an assistant backed by the Legal KB (Fabián)
+- [#10](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian/pull/10) and [#12](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian/pull/12): tokenization proposal form with an AI assistant and RAG (Fabián)
 - [#11](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian/pull/11): admin restyled with the Neko dashboard look (Santiago)
 - [#13](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian/pull/13): typed contract bindings for the front end (Matías)
 - [#14](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian/pull/14): one route per Launchpad screen and page banner (Kevin)
