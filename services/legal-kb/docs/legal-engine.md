@@ -1,7 +1,5 @@
 # Legal data engine: design
 
-Origin: adapted from the cr-tax-kb engine (github.com/Villarley/cr-tax-kb).
-
 Status: proposal, adapted 2026-10-25. Scope: primary and interpretive sources Neko needs for tokenizing real-world assets (Costa Rica first): securities and public offering, anti money laundering and virtual asset service providers, personal data protection, plus US offering exemptions and El Salvador's digital assets law as reference. Stored so an AI can answer with exact, citable, dated text and never needs to scrape a website at question time.
 
 ## 1. What "extremely precise" requires
