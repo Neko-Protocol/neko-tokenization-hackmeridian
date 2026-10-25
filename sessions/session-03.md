@@ -64,4 +64,4 @@ Finish the AI-assisted form, the token compliance and vault, and the dashboard; 
 
 ## AI use
 
-Claude (Anthropic) built Neko Legal KB (adapted from our own cr-tax-kb engine), the tokenization admin, the backend applications module and these docs, and deployed the Legal KB to Cloud Run. Santiago defined the scope and the legal sources, the team reviewed the pull requests, and every commit carries its real author.
+Claude (Anthropic) built Neko Legal KB, the tokenization admin, the backend applications module and these docs, and deployed the Legal KB to Cloud Run. Santiago defined the scope and the legal sources, the team reviewed the pull requests, and every commit carries its real author.
