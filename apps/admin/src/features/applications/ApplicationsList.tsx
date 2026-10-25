@@ -2,9 +2,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { FileText } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  FileText,
+  Search,
+  XCircle,
+} from "lucide-react";
 
 import { Notice } from "@/components/ui/Notice";
+import { PageBanner } from "@/components/ui/PageBanner";
+import { StatCard } from "@/components/ui/StatCard";
 import { useAuth } from "@/features/auth/AuthContext";
 import {
   ASSET_TYPE_LABELS,
@@ -17,8 +26,8 @@ import { cn, formatCurrency, formatDate } from "@/lib/utils";
 
 function SkeletonRow() {
   return (
-    <div className="animate-pulse rounded-2xl border border-white/5 bg-[#1C1C1C] px-4 py-4">
-      <div className="mb-3 h-4 w-1/3 rounded bg-white/10" />
+    <div className="animate-pulse border-t border-white/5 px-5 py-4 first:border-t-0">
+      <div className="mb-2 h-4 w-1/3 rounded bg-white/10" />
       <div className="flex gap-4">
         <div className="h-3 w-24 rounded bg-white/5" />
         <div className="h-3 w-20 rounded bg-white/5" />
@@ -36,6 +45,7 @@ export function ApplicationsList() {
   const { accessToken } = useAuth();
   const [load, setLoad] = useState<LoadState | null>(null);
   const [filter, setFilter] = useState<"all" | ApplicationStatus>("all");
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     if (!accessToken) return;
@@ -87,93 +97,177 @@ export function ApplicationsList() {
     return map;
   }, [items]);
 
-  const visible = useMemo(
-    () => (filter === "all" ? items : items.filter((i) => i.status === filter)),
-    [items, filter]
-  );
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return items.filter(
+      (i) =>
+        (filter === "all" || i.status === filter) &&
+        (!q ||
+          i.asset_name.toLowerCase().includes(q) ||
+          i.issuer_name.toLowerCase().includes(q))
+    );
+  }, [items, filter, query]);
+
+  const pending = counts.submitted + counts.in_review;
 
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="text-xl font-semibold text-white">Applications</h1>
-        <p className="mt-1 text-[13px] text-white/45">
-          Review tokenization applications and record a decision.
-        </p>
+    <div className="flex flex-col gap-6 sm:gap-8">
+      <PageBanner
+        badge="Tokenization admin"
+        title="Applications"
+        subtitle="Review each issuer's proposal, check the legal checklist and record a decision."
+      />
+
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <StatCard
+          icon={<FileText className="h-4 w-4" />}
+          label="Total"
+          value={loading ? "-" : counts.all}
+        />
+        <StatCard
+          icon={<Clock className="h-4 w-4" />}
+          label="Waiting for review"
+          value={loading ? "-" : pending}
+        />
+        <StatCard
+          icon={<CheckCircle2 className="h-4 w-4" />}
+          label="Approved"
+          value={loading ? "-" : counts.approved}
+        />
+        <StatCard
+          icon={<XCircle className="h-4 w-4" />}
+          label="Rejected"
+          value={loading ? "-" : counts.rejected}
+        />
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {STATUS_FILTERS.map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => setFilter(tab.key)}
-            className={cn(
-              "inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-medium transition-colors",
-              filter === tab.key
-                ? "bg-white/10 text-white"
-                : "text-white/45 hover:bg-white/5 hover:text-white"
-            )}
-          >
-            {tab.label}
-            <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-white/60">
-              {counts[tab.key]}
-            </span>
-          </button>
-        ))}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+            <div className="flex w-max gap-1.5">
+              {STATUS_FILTERS.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setFilter(tab.key)}
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium transition-colors",
+                    filter === tab.key
+                      ? "bg-[#222222] text-white"
+                      : "text-white/40 hover:text-white/70"
+                  )}
+                >
+                  {tab.label}
+                  <span
+                    className={cn(
+                      "rounded-full px-1.5 py-0.5 text-[10px]",
+                      filter === tab.key
+                        ? "bg-[#229EDF] text-white"
+                        : "bg-white/10 text-white/50"
+                    )}
+                  >
+                    {counts[tab.key]}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <label className="relative w-full xl:w-72">
+            <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-white/30" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search asset or issuer"
+              aria-label="Search applications"
+              className="w-full rounded-full border border-white/10 bg-[#1C1C1C] py-2 pr-4 pl-10 text-[13px] text-white outline-none transition-colors placeholder:text-white/30 focus:border-[#229EDF]/50"
+            />
+          </label>
+        </div>
+
+        {error && <Notice tone="error">{error}</Notice>}
+
+        {loading ? (
+          <div className="overflow-hidden rounded-2xl border border-white/5 bg-[#1C1C1C]">
+            <SkeletonRow />
+            <SkeletonRow />
+            <SkeletonRow />
+          </div>
+        ) : visible.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-white/5 bg-[#1C1C1C] px-6 py-16 text-center">
+            <div className="rounded-xl bg-[#2A2A2A] p-3 text-white/40">
+              <FileText className="h-5 w-5" />
+            </div>
+            <p className="text-[14px] font-medium text-white/70">
+              {query.trim()
+                ? "No applications match your search"
+                : "No applications here yet"}
+            </p>
+            <p className="text-[12px] text-white/35">
+              {query.trim()
+                ? "Try another asset or issuer name."
+                : "New proposals from the Launchpad will show up in this list."}
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-2xl border border-white/5 bg-[#1C1C1C]">
+            <div className="hidden grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_120px_150px_20px] gap-4 border-b border-white/5 px-5 py-3 text-[11px] font-medium uppercase tracking-[0.12em] text-white/35 md:grid">
+              <span>Asset</span>
+              <span>Type</span>
+              <span>Target</span>
+              <span>Submitted</span>
+              <span>Status</span>
+              <span />
+            </div>
+            <ul>
+              {visible.map((app) => (
+                <li
+                  key={app.id}
+                  className="border-t border-white/5 first:border-t-0"
+                >
+                  <Link
+                    href={`/applications/${app.id}`}
+                    className="group flex flex-col gap-3 px-5 py-4 transition-colors hover:bg-white/[0.03] md:grid md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_120px_150px_20px] md:items-center md:gap-4"
+                  >
+                    <div className="flex min-w-0 items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-[15px] font-semibold text-white">
+                          {app.asset_name}
+                        </p>
+                        <p className="mt-0.5 truncate text-[12px] text-white/45">
+                          {app.issuer_name} · {app.issuer_country} ·{" "}
+                          <span className="capitalize">
+                            {app.offering_type}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="md:hidden">
+                        <StatusBadge status={app.status} />
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-white/55 md:contents md:text-[13px]">
+                      <span>
+                        {ASSET_TYPE_LABELS[app.asset_type] ?? app.asset_type}
+                      </span>
+                      <span className="text-white/80">
+                        {formatCurrency(app.target_amount, app.currency)}
+                      </span>
+                      <span className="text-white/40">
+                        {formatDate(app.created_at)}
+                      </span>
+                    </div>
+                    <div className="hidden md:block">
+                      <StatusBadge status={app.status} />
+                    </div>
+                    <ChevronRight className="hidden h-4 w-4 text-white/25 transition-colors group-hover:text-white/60 md:block" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
-
-      {error && <Notice tone="error">{error}</Notice>}
-
-      {loading ? (
-        <div className="flex flex-col gap-3">
-          <SkeletonRow />
-          <SkeletonRow />
-          <SkeletonRow />
-        </div>
-      ) : visible.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/5 bg-[#1C1C1C] px-6 py-16 text-center">
-          <FileText className="h-5 w-5 text-white/25" />
-          <p className="text-[13px] text-white/35">No applications here yet.</p>
-        </div>
-      ) : (
-        <ul className="flex flex-col gap-3">
-          {visible.map((app) => (
-            <li key={app.id}>
-              <Link
-                href={`/applications/${app.id}`}
-                className="block rounded-2xl border border-white/5 bg-[#1C1C1C] px-4 py-4 transition-colors hover:border-white/10 hover:bg-[#1f1f1f]"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-[15px] font-semibold text-white">
-                      {app.asset_name}
-                    </p>
-                    <p className="mt-0.5 text-[13px] text-white/45">
-                      {app.issuer_name}
-                    </p>
-                  </div>
-                  <StatusBadge status={app.status} />
-                </div>
-                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-white/45">
-                  <span>
-                    {ASSET_TYPE_LABELS[app.asset_type] ?? app.asset_type}
-                  </span>
-                  <span>
-                    Target {formatCurrency(app.target_amount, app.currency)}
-                  </span>
-                  <span>
-                    Min ticket {formatCurrency(app.min_ticket, app.currency)}
-                  </span>
-                  <span className="capitalize">
-                    {app.offering_type} offering
-                  </span>
-                  <span>Submitted {formatDate(app.created_at)}</span>
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }

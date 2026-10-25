@@ -98,8 +98,10 @@ function CheckRow({ check }: { check: EnrichedComplianceCheck }) {
         type="button"
         onClick={() => hasCitations && setOpen((v) => !v)}
         className={cn(
-          "flex w-full items-start gap-3 px-1 py-3 text-left",
-          hasCitations ? "cursor-pointer" : "cursor-default"
+          "-mx-2 flex w-[calc(100%+1rem)] items-start gap-3 rounded-xl px-2 py-3 text-left transition-colors",
+          hasCitations
+            ? "cursor-pointer hover:bg-white/[0.03]"
+            : "cursor-default"
         )}
         disabled={!hasCitations}
       >
@@ -124,6 +126,36 @@ function CheckRow({ check }: { check: EnrichedComplianceCheck }) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+const TALLY_TONES: Record<"pass" | "warn" | "fail", string> = {
+  pass: "text-[#7fe3a6]",
+  warn: "text-amber-200",
+  fail: "text-[#ff8a83]",
+};
+
+function Tally({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: "pass" | "warn" | "fail";
+}) {
+  return (
+    <div className="rounded-xl border border-white/5 bg-[#141414] px-3 py-2.5">
+      <p
+        className={cn(
+          "text-lg font-semibold",
+          value > 0 ? TALLY_TONES[tone] : "text-white/30"
+        )}
+      >
+        {value}
+      </p>
+      <p className="text-[11px] text-white/40">{label}</p>
     </div>
   );
 }
@@ -182,8 +214,13 @@ export function CompliancePanel({
   const blockers = checks?.filter((c) => c.status === "fail").length ?? 0;
   const warnings = checks?.filter((c) => c.status === "warn").length ?? 0;
 
+  const passed = checks?.filter((c) => c.status === "pass").length ?? 0;
+
   return (
-    <SectionCard title="Legal compliance">
+    <SectionCard
+      title="Legal compliance"
+      description="Automatic checklist built from fixed rules and the Neko Legal KB. It does not use AI. Click a row to read the law it cites."
+    >
       {loading ? (
         <div className="flex items-center gap-2 text-[13px] text-white/45">
           <Spinner />
@@ -193,10 +230,11 @@ export function CompliancePanel({
         <p className="text-[13px] text-[#ff8a83]">{error}</p>
       ) : (
         <>
-          <p className="text-[13px] text-white/60">
-            {blockers} blocker{blockers === 1 ? "" : "s"}, {warnings} warning
-            {warnings === 1 ? "" : "s"}
-          </p>
+          <div className="grid grid-cols-3 gap-2">
+            <Tally label="Blockers" value={blockers} tone="fail" />
+            <Tally label="Warnings" value={warnings} tone="warn" />
+            <Tally label="Passed" value={passed} tone="pass" />
+          </div>
           <div className="flex flex-col">
             {checks?.map((check) => (
               <CheckRow key={check.id} check={check} />

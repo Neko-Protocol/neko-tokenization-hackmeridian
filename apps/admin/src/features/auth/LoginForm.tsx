@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft, Mail } from "lucide-react";
 
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Notice } from "@/components/ui/Notice";
+import { Spinner } from "@/components/ui/Spinner";
 import {
   AdminApiError,
   requestAdminCode,
@@ -14,6 +13,15 @@ import {
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 
 type Step = "email" | "code";
+
+const CODE_LENGTH = 6;
+const RESEND_SECONDS = 30;
+
+const INPUT_CLASS =
+  "w-full rounded-lg border border-white/10 bg-[#141414] px-4 py-2.5 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-[#229EDF]/50 disabled:opacity-60";
+
+const PRIMARY_CLASS =
+  "inline-flex items-center justify-center gap-2 rounded-lg bg-[#229EDF] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1a85bd] disabled:cursor-not-allowed disabled:opacity-60";
 
 function mapRequestError(err: unknown): string {
   if (err instanceof AdminApiError) {
@@ -26,7 +34,7 @@ function mapRequestError(err: unknown): string {
 
 function mapVerifyError(reason: string | undefined, err: unknown): string {
   if (reason === "invalid_code") {
-    return "Invalid code. Check the digits and try again.";
+    return "That code is not valid. Check the digits or ask for a new one.";
   }
   if (err instanceof AdminApiError) {
     if (err.code === "BACKEND_UNREACHABLE" || err.status === 502) {
@@ -36,6 +44,14 @@ function mapVerifyError(reason: string | undefined, err: unknown): string {
   return "Could not verify the code. Try again.";
 }
 
+function ErrorText({ children }: { children: React.ReactNode }) {
+  return (
+    <p role="alert" className="text-center text-sm text-red-400">
+      {children}
+    </p>
+  );
+}
+
 export function LoginForm() {
   const router = useRouter();
   const [step, setStep] = useState<Step>("email");
@@ -43,35 +59,54 @@ export function LoginForm() {
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resendIn, setResendIn] = useState(0);
+  const lastSubmitted = useRef<string | null>(null);
 
-  const sendCode = async (e: FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const id = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [resendIn]);
+
+  const requestCode = async (): Promise<boolean> => {
     setError(null);
     setLoading(true);
     try {
       const result = await requestAdminCode(email.trim());
       if (!result.ok) {
-        if (result.reason === "not_authorized") {
-          setError("This email is not an admin.");
-        } else {
-          setError("Could not send a code. Try again later.");
-        }
-        return;
+        setError(
+          result.reason === "not_authorized"
+            ? "This email is not on the admin list."
+            : "Could not send a code. Try again later."
+        );
+        return false;
       }
-      setStep("code");
+      setResendIn(RESEND_SECONDS);
+      return true;
     } catch (err) {
       setError(mapRequestError(err));
+      return false;
     } finally {
       setLoading(false);
     }
   };
 
-  const signIn = async (e: FormEvent) => {
+  const sendCode = async (e: FormEvent) => {
     e.preventDefault();
+    if (await requestCode()) {
+      setCode("");
+      lastSubmitted.current = null;
+      setStep("code");
+    }
+  };
+
+  const verify = async (value: string) => {
+    if (loading || value.length !== CODE_LENGTH) return;
+    lastSubmitted.current = value;
     setError(null);
     setLoading(true);
     try {
-      const result = await verifyAdminCode(email.trim(), code.trim());
+      const result = await verifyAdminCode(email.trim(), value);
       if (!result.ok || !result.tokenHash) {
         setError(mapVerifyError(result.reason, null));
         return;
@@ -83,7 +118,7 @@ export function LoginForm() {
         type: "magiclink",
       });
       if (otpError) {
-        setError("Invalid code. Check the digits and try again.");
+        setError(mapVerifyError("invalid_code", null));
         return;
       }
 
@@ -95,75 +130,136 @@ export function LoginForm() {
     }
   };
 
+  const onCodeChange = (raw: string) => {
+    const next = raw.replace(/\D/g, "").slice(0, CODE_LENGTH);
+    setCode(next);
+    if (error) setError(null);
+    // Submit on its own once the last digit is typed or a code is pasted.
+    if (next.length === CODE_LENGTH && next !== lastSubmitted.current) {
+      void verify(next);
+    }
+  };
+
   if (step === "email") {
     return (
-      <form onSubmit={sendCode} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-2">
-          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/45">
-            Admin email
-          </span>
-          <Input
+      <>
+        <p className="mb-6 text-center text-sm text-white/40">
+          Sign in with your authorized email. We&apos;ll send you a code, no
+          password needed.
+        </p>
+        <form onSubmit={sendCode} className="flex flex-col gap-3">
+          <input
             type="email"
+            name="email"
             required
+            autoFocus
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@neko.fi"
+            placeholder="you@example.com"
             aria-label="Email"
-            className="h-11 px-4"
+            disabled={loading}
+            className={INPUT_CLASS}
           />
-        </label>
-        {error && <Notice tone="error">{error}</Notice>}
-        <Button type="submit" loading={loading} className="min-h-11 text-sm">
-          Send code
-        </Button>
-      </form>
+          <button
+            type="submit"
+            disabled={loading || !email.trim()}
+            className={PRIMARY_CLASS}
+          >
+            {loading ? (
+              <>
+                <Spinner className="border-white/30 border-t-white" />
+                Sending...
+              </>
+            ) : (
+              "Send code"
+            )}
+          </button>
+          {error && <ErrorText>{error}</ErrorText>}
+        </form>
+      </>
     );
   }
 
   return (
-    <form onSubmit={signIn} className="flex flex-col gap-4">
-      <p className="text-[13px] text-white/60">
-        We sent a 6-digit code to{" "}
-        <span className="font-medium text-white">{email}</span>.
-      </p>
-      <label className="flex flex-col gap-2">
-        <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/45">
-          Code
+    <>
+      <div className="mb-6 flex flex-col items-center gap-3 text-center">
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#229EDF]/15 text-[#229EDF]">
+          <Mail className="h-4 w-4" />
         </span>
-        <Input
+        <p className="text-sm text-white/40">
+          Enter the {CODE_LENGTH}-digit code we sent to
+          <span className="mt-0.5 block break-words text-white">{email}</span>
+        </p>
+      </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void verify(code);
+        }}
+        className="flex flex-col gap-3"
+      >
+        <input
+          type="text"
+          name="code"
+          required
+          autoFocus
           inputMode="numeric"
           autoComplete="one-time-code"
-          required
-          maxLength={6}
+          maxLength={CODE_LENGTH}
           value={code}
-          onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-          placeholder="123456"
+          onChange={(e) => onCodeChange(e.target.value)}
+          placeholder="000000"
           aria-label="Code"
-          className="h-11 text-center font-mono text-base tracking-[0.5em]"
-          autoFocus
+          aria-invalid={error ? true : undefined}
+          disabled={loading}
+          className={`${INPUT_CLASS} text-center font-mono text-lg tracking-[0.5em] ${
+            error ? "border-red-400/50" : ""
+          }`}
         />
-      </label>
-      {error && <Notice tone="error">{error}</Notice>}
-      <Button
-        type="submit"
-        loading={loading}
-        disabled={code.length < 6}
-        className="min-h-11 text-sm"
-      >
-        Sign in
-      </Button>
-      <button
-        type="button"
-        onClick={() => {
-          setStep("email");
-          setCode("");
-          setError(null);
-        }}
-        className="text-xs text-white/50 hover:text-white"
-      >
-        Use a different email
-      </button>
-    </form>
+        <button
+          type="submit"
+          disabled={loading || code.length < CODE_LENGTH}
+          className={PRIMARY_CLASS}
+        >
+          {loading ? (
+            <>
+              <Spinner className="border-white/30 border-t-white" />
+              Verifying...
+            </>
+          ) : (
+            "Verify code"
+          )}
+        </button>
+        {error && <ErrorText>{error}</ErrorText>}
+      </form>
+
+      <div className="mt-5 flex items-center justify-between text-xs">
+        <button
+          type="button"
+          onClick={() => {
+            setStep("email");
+            setCode("");
+            setError(null);
+          }}
+          className="inline-flex items-center gap-1 text-white/40 transition hover:text-white/70"
+        >
+          <ArrowLeft className="h-3 w-3" />
+          Different email
+        </button>
+        <button
+          type="button"
+          disabled={loading || resendIn > 0}
+          onClick={() => {
+            setCode("");
+            lastSubmitted.current = null;
+            void requestCode();
+          }}
+          className="text-[#229EDF] transition hover:text-[#5bbbec] disabled:cursor-not-allowed disabled:text-white/30"
+        >
+          {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend code"}
+        </button>
+      </div>
+    </>
   );
 }
