@@ -8,6 +8,7 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { Button } from "@/components/ui/Button";
 import { Notice } from "@/components/ui/Notice";
 import { Spinner } from "@/components/ui/Spinner";
+import { applicationKeys } from "@/features/application";
 import { EmailLogin } from "@/features/auth";
 import {
   accountKeys,
@@ -58,12 +59,14 @@ function AuthedHome() {
     return (
       <div className="min-h-dvh">
         <AppHeader
+          wide
           actions={
             <Button
               variant="ghost"
               onClick={async () => {
                 await logout();
                 queryClient.removeQueries({ queryKey: accountKeys.all });
+                queryClient.removeQueries({ queryKey: applicationKeys.all });
               }}
             >
               <LogOut className="h-4 w-4" />
@@ -71,7 +74,7 @@ function AuthedHome() {
             </Button>
           }
         />
-        <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+        <main className="mx-auto w-full max-w-[1320px] px-4 py-6 sm:px-6 sm:py-8">
           {account.data ? (
             <Dashboard data={account.data} />
           ) : (

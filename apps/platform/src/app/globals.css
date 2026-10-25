@@ -20,6 +20,7 @@ body {
 
 @theme inline {
   --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-plex-serif), ui-serif, Georgia, serif;
   --font-label:
     var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
   --radius-sm: calc(var(--radius) - 4px);
@@ -85,6 +86,12 @@ body {
   }
 }
 
+@keyframes lp-fade {
+  from {
+    opacity: 0;
+  }
+}
+
 @keyframes lp-pop {
   from {
     opacity: 0;
@@ -122,8 +129,20 @@ body {
   }
 }
 
+@keyframes lp-applied {
+  from {
+    background-color: rgb(34 158 223 / 0.16);
+    border-color: rgb(34 158 223 / 0.5);
+  }
+}
+
+.lp-applied {
+  animation: lp-applied 1.6s ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  [class*="animate-[lp-"] {
+  [class*="animate-[lp-"],
+  .lp-applied {
     animation: none !important;
   }
 }

@@ -37,6 +37,62 @@ export interface LaunchpadAccount {
   };
 }
 
+export type ApplicationStatus =
+  | "submitted"
+  | "in_review"
+  | "changes_requested"
+  | "approved"
+  | "rejected";
+
+export type AssetType =
+  | "real_estate"
+  | "private_credit"
+  | "invoices"
+  | "agriculture"
+  | "energy"
+  | "other";
+
+export interface CreateApplicationInput {
+  issuer_name: string;
+  issuer_country: string;
+  asset_name: string;
+  asset_type: AssetType;
+  description: string;
+  target_amount: number;
+  currency: string;
+  min_ticket: number;
+  expected_yield_pct?: number;
+  term_months?: number;
+  max_investors?: number;
+  offering_type: "private" | "public";
+  investor_countries: string[];
+  accepts_us_investors: boolean;
+  uses_mass_marketing: boolean;
+  milestones: { title: string; amount_pct: number; due?: string }[];
+  documents: { name: string; url: string }[];
+  ai_summary?: string;
+}
+
+export interface Application
+  extends Required<
+    Omit<
+      CreateApplicationInput,
+      "expected_yield_pct" | "term_months" | "max_investors" | "ai_summary"
+    >
+  > {
+  id: string;
+  account_id: string;
+  status: ApplicationStatus;
+  expected_yield_pct: number | null;
+  term_months: number | null;
+  max_investors: number | null;
+  ai_summary: string | null;
+  review_note: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 const claim = (claimToken: string) => ({ "x-claim-token": claimToken });
 const bearer = (accessToken: string) => ({
   Authorization: `Bearer ${accessToken}`,
@@ -69,6 +125,16 @@ export const launchpadApi = {
 
   me: (accessToken: string) =>
     backendClient.get<LaunchpadAccount>("/v1/launchpad/me", {
+      headers: bearer(accessToken),
+    }),
+
+  createApplication: (accessToken: string, input: CreateApplicationInput) =>
+    backendClient.post<Application>("/v1/launchpad/applications", input, {
+      headers: bearer(accessToken),
+    }),
+
+  myApplications: (accessToken: string) =>
+    backendClient.get<Application[]>("/v1/launchpad/applications/mine", {
       headers: bearer(accessToken),
     }),
 };

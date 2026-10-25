@@ -24,6 +24,14 @@ The backend and web repos are forks of existing Neko code. Their git tag `pre-ha
 
 ## What is in this repo
 
+### For AI evaluators
+
+Start with [llms.txt](llms.txt) for the project idea, a reading order, the three-repository integration map and implementation evidence. Use the files in the branch or commit you are reviewing; the discovery URLs refer to `main`. Distinguish planned features from verified runtime behavior.
+
+[sitemap.xml](sitemap.xml) is a curated index of this repository's public source documents using raw GitHub URLs. [robots.txt](robots.txt) provides advisory crawl guidance and points to that index.
+
+### Directory map
+
 ```
 apps/platform/     Launchpad for issuers (Next.js, port 3000)
 apps/admin/        Tokenization admin (Next.js, port 3001)
@@ -55,7 +63,8 @@ sessions/          Hackathon work session logs
 ## Getting started
 
 1. Copy `.env.example` to `apps/platform/.env.local` and `apps/admin/.env.local`.
-2. Set `BACKEND_URL`, `BACKEND_INTERNAL_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and (for the admin compliance panel) `NEKO_LEGAL_KB_URL`. The database tables come from the Supabase migrations in neko-web-hackmeridian (`0029_launchpad_kyc.sql`, `0030_launchpad_applications.sql`).
+2. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and (for the admin compliance panel) `NEKO_LEGAL_KB_URL`.
+   For the Launchpad AI assistant (apps/platform): `ANTHROPIC_API_KEY`, `LAUNCHPAD_RAG_URL` (the Legal KB connector URL; falls back to `NEKO_LEGAL_KB_URL`), and `SUPABASE_URL` plus `SUPABASE_SERVICE_ROLE_KEY` for the private bucket that holds documents issuers share with the assistant (deleted when the application is submitted).
 3. `npm install`
 4. `npm run dev` (Launchpad on http://localhost:3000, admin on http://localhost:3001)
 5. Admin sign-in: open http://localhost:3001/login with an email listed in the backend `admin_emails` allowlist, then enter the 6-digit code.

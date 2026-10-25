@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Curated repository source-document index for AI evaluation, not an app-page sitemap.
+  URLs share the raw.githubusercontent.com host and this repository's main prefix.
+  These discovery files become available at their main URLs only after publication.
+  For a branch review, read the corresponding files in that checkout instead.
+  Cross-repository links belong in llms.txt; no deployment origin is assumed here.
+  No lastmod dates are invented. Update this index when source documents move.
+  GitHub controls crawling/indexing on its hosts; this is not an indexing guarantee.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/llms.txt</loc>
+  </url>
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/README.md</loc>
+  </url>
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/docs/plan.md</loc>
+  </url>
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/docs/diagrams.md</loc>
+  </url>
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/ROADMAP.md</loc>
+  </url>
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/contracts/README.md</loc>
+  </url>
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/contracts/rwa/DEPLOY.md</loc>
+  </url>
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/services/legal-kb/README.md</loc>
+  </url>
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/services/legal-kb/laws/registry.json</loc>
+  </url>
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/services/legal-kb/corpus/obligations/tokenization-obligations.md</loc>
+  </url>
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/services/legal-kb/corpus/obligations/latam-spv-and-obligations.md</loc>
+  </url>
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/services/legal-kb/docs/legal-engine.md</loc>
+  </url>
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/services/legal-kb/docs/deploy.md</loc>
+  </url>
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/sessions/session-01.md</loc>
+  </url>
+  <url>
+    <loc>https://raw.githubusercontent.com/Neko-Protocol/neko-tokenization-hackmeridian/main/sessions/session-02.md</loc>
+  </url>
+</urlset>
