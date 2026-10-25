@@ -56,7 +56,7 @@ sessions/          Hackathon work session logs
 
 1. Copy `.env.example` to `apps/platform/.env.local` and `apps/admin/.env.local`.
 2. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and (for the admin compliance panel) `NEKO_LEGAL_KB_URL`.
-   For the Launchpad AI assistant (apps/platform): `ANTHROPIC_API_KEY`, `LAUNCHPAD_RAG_URL` (the Legal KB connector URL; falls back to `NEKO_LEGAL_KB_URL`), and `SUPABASE_URL` plus `SUPABASE_SERVICE_ROLE_KEY` for the private bucket that holds documents issuers share with the assistant (deleted when the application is submitted).
+   The Launchpad AI assistant runs in the backend (`neko-backend-hackmeridian`): set `ANTHROPIC_API_KEY` and `LAUNCHPAD_RAG_URL` (the Legal KB connector URL) there.
 3. `npm install`
 4. `npm run dev` (Launchpad on http://localhost:3000, admin on http://localhost:3001)
 5. Admin sign-in: open http://localhost:3001/login with an email listed in the backend `admin_emails` allowlist, then enter the 6-digit code.
