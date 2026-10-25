@@ -4,7 +4,7 @@ import { ASSET_TYPES, countryName } from "../../utils/fields";
 import { ASSET_ICONS } from "../../utils/assetIcons";
 import { StatusPill, StatusTrack } from "./StatusTrack";
 
-export const surface = "rounded-2xl bg-[#1b1b1b] shadow-[0_12px_32px_-20px_rgba(0,0,0,0.9)]";
+export const surface = "rounded-2xl border border-white/10 bg-[#1b1b1b]";
 
 export function money(amount: number, currency: string): string {
   try {
