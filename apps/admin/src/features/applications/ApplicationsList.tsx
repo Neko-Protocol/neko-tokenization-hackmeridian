@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Clock,
   FileText,
+  Search,
   XCircle,
 } from "lucide-react";
 
@@ -44,6 +45,7 @@ export function ApplicationsList() {
   const { accessToken } = useAuth();
   const [load, setLoad] = useState<LoadState | null>(null);
   const [filter, setFilter] = useState<"all" | ApplicationStatus>("all");
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     if (!accessToken) return;
@@ -95,10 +97,16 @@ export function ApplicationsList() {
     return map;
   }, [items]);
 
-  const visible = useMemo(
-    () => (filter === "all" ? items : items.filter((i) => i.status === filter)),
-    [items, filter]
-  );
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return items.filter(
+      (i) =>
+        (filter === "all" || i.status === filter) &&
+        (!q ||
+          i.asset_name.toLowerCase().includes(q) ||
+          i.issuer_name.toLowerCase().includes(q))
+    );
+  }, [items, filter, query]);
 
   const pending = counts.submitted + counts.in_review;
 
@@ -134,34 +142,48 @@ export function ApplicationsList() {
       </div>
 
       <div className="flex flex-col gap-4">
-        <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-          <div className="flex w-max gap-1.5">
-            {STATUS_FILTERS.map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => setFilter(tab.key)}
-                className={cn(
-                  "inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium transition-colors",
-                  filter === tab.key
-                    ? "bg-[#222222] text-white"
-                    : "text-white/40 hover:text-white/70"
-                )}
-              >
-                {tab.label}
-                <span
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+            <div className="flex w-max gap-1.5">
+              {STATUS_FILTERS.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setFilter(tab.key)}
                   className={cn(
-                    "rounded-full px-1.5 py-0.5 text-[10px]",
+                    "inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium transition-colors",
                     filter === tab.key
-                      ? "bg-[#229EDF] text-white"
-                      : "bg-white/10 text-white/50"
+                      ? "bg-[#222222] text-white"
+                      : "text-white/40 hover:text-white/70"
                   )}
                 >
-                  {counts[tab.key]}
-                </span>
-              </button>
-            ))}
+                  {tab.label}
+                  <span
+                    className={cn(
+                      "rounded-full px-1.5 py-0.5 text-[10px]",
+                      filter === tab.key
+                        ? "bg-[#229EDF] text-white"
+                        : "bg-white/10 text-white/50"
+                    )}
+                  >
+                    {counts[tab.key]}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
+
+          <label className="relative w-full xl:w-72">
+            <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-white/30" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search asset or issuer"
+              aria-label="Search applications"
+              className="w-full rounded-full border border-white/10 bg-[#1C1C1C] py-2 pr-4 pl-10 text-[13px] text-white outline-none transition-colors placeholder:text-white/30 focus:border-[#229EDF]/50"
+            />
+          </label>
         </div>
 
         {error && <Notice tone="error">{error}</Notice>}
@@ -178,10 +200,14 @@ export function ApplicationsList() {
               <FileText className="h-5 w-5" />
             </div>
             <p className="text-[14px] font-medium text-white/70">
-              No applications here yet
+              {query.trim()
+                ? "No applications match your search"
+                : "No applications here yet"}
             </p>
             <p className="text-[12px] text-white/35">
-              New proposals from the Launchpad will show up in this list.
+              {query.trim()
+                ? "Try another asset or issuer name."
+                : "New proposals from the Launchpad will show up in this list."}
             </p>
           </div>
         ) : (

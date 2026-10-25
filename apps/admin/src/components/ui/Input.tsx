@@ -18,7 +18,7 @@ export function Input({
 export function Textarea({
   className,
   ...props
-}: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+}: React.ComponentProps<"textarea">) {
   return (
     <textarea
       {...props}
