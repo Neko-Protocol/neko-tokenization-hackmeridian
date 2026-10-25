@@ -1,0 +1,20 @@
+{
+  "id": "ar-ley-25246",
+  "title": "Ley 25.246, encubrimiento y lavado de activos, con la reforma de la Ley 27.739 (Argentina)",
+  "number": "25.246",
+  "type": "ley",
+  "area": "antilavado",
+  "rank": "ley",
+  "version_date": "",
+  "source_url": "https://servicios.infoleg.gob.ar/infolegInternet/anexos/60000-64999/62977/texact.htm",
+  "retrieved_at": "2026-10-25",
+  "source_sha256": "d6fff36f93644fbd7fc9507e91638a2d28b78546e5836750b822366a8b05ef94",
+  "units": 46,
+  "articles": 46,
+  "transitorios": 0,
+  "anexos": 0,
+  "derogados": 0,
+  "warnings": [
+    "gap: article 3 to 276 missing"
+  ]
+}

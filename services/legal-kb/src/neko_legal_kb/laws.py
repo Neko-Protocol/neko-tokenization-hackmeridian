@@ -30,7 +30,15 @@ from pathlib import Path
 from .corpus import REPO_ROOT
 
 LAWS_DIR = REPO_ROOT / "laws"
-AREAS = {"valores", "antilavado", "datos", "internacional", "referencia"}
+AREAS = {
+    "valores",
+    "antilavado",
+    "datos",
+    "internacional",
+    "referencia",
+    "sociedades",
+    "fintech",
+}
 TYPES = {"ley", "decreto", "reglamento", "regulation", "resolucion", "tratado", "constitucion"}
 RANKS = [
     "constitucion",
@@ -223,14 +231,14 @@ _WHOLE_UNIT_REPEAL_START = re.compile(r"^(?:\(\*\)\s*)?\((?:Derogad|Anulad)", re
 # Optional leading "A" absorbs SCIJ typos like "Aartículo".
 _ART_WORD = r"A?(?:ART[IÍ]CULO|Art[ií]culo|Art\.)"
 ARTICLE = re.compile(
-    r"^" + _ART_WORD + r"\s+(\d+)\s*[°º]?\s*" + SUFFIX + r"\s*[°º]?\s*[.:\-\u2013]+\s*(.*)$", re.I
+    r"^" + _ART_WORD + r"\s+(\d+)\s*(?:[°º]|o(?=\.))?\s*" + SUFFIX + r"\s*[°º]?\s*[.:\-\u2013\u2014]+\s*(.*)$", re.I
 )
 # Letter suffix (66-B, 66-CH), not Latin bis/ter/...; checked before ARTICLE.
 ARTICLE_LETTER = re.compile(
-    r"^" + _ART_WORD + r"\s+(\d+)\s*-\s*(CH|[A-Z])\s*[.:\-\u2013]+\s*(.*)$", re.I
+    r"^" + _ART_WORD + r"\s+(\d+)\s*-\s*(CH|[A-Z])\s*[.:\-\u2013\u2014]+\s*(.*)$", re.I
 )
 TRANSITORIO = re.compile(
-    r"^TRANSITORIO\s+([IVXLCDM]+|\d+|[ÚU]NICO)\s*[°º]?\s*" + SUFFIX + r"\s*[°º]?\s*[.:\-\u2013]+\s*(.*)$",
+    r"^TRANSITORIO\s+([IVXLCDM]+|\d+|[ÚU]NICO)\s*[°º]?\s*" + SUFFIX + r"\s*[°º]?\s*[.:\-\u2013\u2014]+\s*(.*)$",
     re.I,
 )
 STRUCTURE = re.compile(r"^(LIBRO|T[IÍ]TULO|CAP[IÍ]TULO|SECCI[OÓ]N|SUBSECCI[OÓ]N)\b", re.I)

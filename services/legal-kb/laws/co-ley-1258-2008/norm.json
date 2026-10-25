@@ -1,0 +1,20 @@
+{
+  "id": "co-ley-1258-2008",
+  "title": "Ley 1258 de 2008, sociedad por acciones simplificada (Colombia)",
+  "number": "1258",
+  "type": "ley",
+  "area": "sociedades",
+  "rank": "ley",
+  "version_date": "",
+  "source_url": "http://www.secretariasenado.gov.co/senado/basedoc/ley_1258_2008.html",
+  "retrieved_at": "2026-10-25",
+  "source_sha256": "e5e1f9487ef6365290e7399a261c99691ffc5b85db11aa63238175e9f91f24fc",
+  "units": 46,
+  "articles": 46,
+  "transitorios": 0,
+  "anexos": 0,
+  "derogados": 0,
+  "warnings": [
+    "articulo 43: vigente text embeds roman-numbered ARTICULO heading"
+  ]
+}

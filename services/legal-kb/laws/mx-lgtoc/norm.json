@@ -1,0 +1,21 @@
+{
+  "id": "mx-lgtoc",
+  "title": "Ley General de Títulos y Operaciones de Crédito (México)",
+  "number": "LGTOC",
+  "type": "ley",
+  "area": "sociedades",
+  "rank": "ley",
+  "version_date": "",
+  "source_url": "https://www.ordenjuridico.gob.mx/Documentos/Federal/html/wo42.html",
+  "retrieved_at": "2026-10-25",
+  "source_sha256": "4fa6c5ebccb5e339510cb1dcc60de0deaf0601303317e6c941a82df6e9aaad1e",
+  "units": 430,
+  "articles": 430,
+  "transitorios": 0,
+  "anexos": 0,
+  "derogados": 0,
+  "warnings": [
+    "gap: article 1 to 9 missing",
+    "duplicate articulo 210"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "mx-lritf",
+  "title": "Ley para Regular las Instituciones de Tecnología Financiera (México)",
+  "number": "LRITF",
+  "type": "ley",
+  "area": "fintech",
+  "rank": "ley",
+  "version_date": "",
+  "source_url": "https://www.cnbv.gob.mx/Normatividad/Ley%20para%20Regular%20las%20Instituciones%20de%20Tecnolog%C3%ADa%20Financiera.pdf",
+  "retrieved_at": "2026-10-25",
+  "source_sha256": "6d87b87a815243e4c83e95dc98a258a36b94d28918339bb62421d1251ada57ed",
+  "units": 145,
+  "articles": 145,
+  "transitorios": 0,
+  "anexos": 0,
+  "derogados": 0,
+  "warnings": [
+    "articulo 84: path polluted: Capítulo en un registro que será público, por lo que le darán difusión en su página de internet y co",
+    "articulo 85: path polluted: Capítulo en un registro que será público, por lo que le darán difusión en su página de internet y co"
+  ]
+}

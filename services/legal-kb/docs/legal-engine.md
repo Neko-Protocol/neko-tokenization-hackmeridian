@@ -103,7 +103,7 @@ Rank (binding force), highest first: `constitucion`, `tratado`, `ley`, `decreto`
 
 ## 5. Scope: what the engine holds
 
-Norm ids are assigned at ingest; law numbers below are confirmed against the source title at ingest time (the ingester refuses a file whose title does not match). Areas: `valores`, `antilavado`, `datos`, `internacional`, `referencia`.
+Norm ids are assigned at ingest; law numbers below are confirmed against the source title at ingest time (the ingester refuses a file whose title does not match). Areas: `valores`, `antilavado`, `datos`, `internacional`, `referencia`, `sociedades` (SPV vehicles: trusts, SAS companies), `fintech`. Mexico, Colombia and Argentina use norm ids prefixed `mx-`, `co-` and `ar-` (securities, fintech/virtual assets, anti money laundering, SPV vehicles).
 
 **Securities and public offering (valores)**
 
@@ -129,6 +129,14 @@ Norm ids are assigned at ingest; law numbers below are confirmed against the sou
 **Reference only (referencia)**
 
 - Ley de Emision de Activos Digitales (El Salvador): not law in Costa Rica; cite as comparative reference only
+
+**SPV vehicles (sociedades)**
+
+- Trusts, SAS companies and similar vehicles used to hold tokenized assets (Costa Rica and, with `mx-`, `co-`, `ar-` ids, Mexico, Colombia, Argentina)
+
+**Fintech and virtual assets (fintech)**
+
+- Fintech licensing, payment and virtual-asset rules (Costa Rica and regional norms with `mx-`, `co-`, `ar-` ids)
 
 **Interpretation layer** (later): PGR dictamenes, Sala Constitucional and other rulings that interpret the units above. Stored with `rank`, date and the units they interpret; never mixed into the norm text.
 

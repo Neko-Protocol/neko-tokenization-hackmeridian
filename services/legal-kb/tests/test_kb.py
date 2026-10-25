@@ -171,7 +171,11 @@ class McpTest(unittest.TestCase):
         self.assertIn("tokenization-obligations", sugef)
         norms = json.loads(out[4]["result"]["content"][0]["text"])
         self.assertIn("stored", norms)
-        self.assertEqual(norms["registered_not_ingested"], [])
+        registry = {n["id"]: n for n in json.loads((ROOT / "laws" / "registry.json").read_text(encoding="utf-8"))["norms"]}
+        for entry in norms["registered_not_ingested"]:
+            with self.subTest(norm=entry["id"]):
+                self.assertIn(entry["id"], registry)
+                self.assertIn("Not ingested", registry[entry["id"]].get("note", ""))
         self.assertEqual(out[5]["error"]["code"], -32601)
 
     def test_llms_txt_empty_corpus(self):

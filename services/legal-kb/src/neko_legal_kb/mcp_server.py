@@ -27,7 +27,7 @@ else:
 
 SUPPORTED_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"]
 
-INSTRUCTIONS = """Legal knowledge base for tokenizing real-world assets with Neko (Costa Rica first): securities and public offering (Ley 7732, SUGEVAL), anti money laundering and virtual asset service providers (Ley 7786, SUGEF), personal data (Ley 8968), US offering exemptions (Regulation D, S, Crowdfunding) and El Salvador's digital assets law as reference. Search first, cite the article id and source URL for every claim, say when a source is secondary or reference only, never present a bill as law, and leave final positions to a licensed lawyer.
+INSTRUCTIONS = """Legal knowledge base for tokenizing real-world assets with Neko (Costa Rica first, plus Mexico, Colombia and Argentina): securities and public offering (Ley 7732, SUGEVAL), anti money laundering and virtual asset service providers (Ley 7786, SUGEF), personal data (Ley 8968), SPV vehicles (trusts, SAS companies, area sociedades), fintech and virtual assets, US offering exemptions (Regulation D, S, Crowdfunding) and El Salvador's digital assets law as reference. Mexican, Colombian and Argentine norms use ids prefixed mx-, co- and ar-. Search first, cite the article id and source URL for every claim, say when a source is secondary or reference only, never present a bill as law, and leave final positions to a licensed lawyer.
 
 Verbatim legal texts (laws, decrees, reglamentos) are served article by article:
 get_article for an exact article, search_law to find articles, list_norms for
@@ -55,8 +55,9 @@ TOOLS = [
     {
         "name": "search_kb",
         "title": "Search Neko legal knowledge base",
-        "description": "Search explainers for tokenizing real-world assets with Neko (securities, AML/VASP, "
-        "personal data, US offering exemptions). Spanish or English queries. "
+        "description": "Search explainers for tokenizing real-world assets with Neko (Costa Rica, Mexico, "
+        "Colombia, Argentina: securities, AML/VASP, personal data, fintech, SPV vehicles, US offering exemptions). "
+        "Spanish or English queries. "
         "Returns matching sections with a citation id, date, status, and source URLs.",
         "inputSchema": {
             "type": "object",
@@ -107,8 +108,10 @@ TOOLS += [
         "name": "search_law",
         "title": "Search legal texts",
         "description": "Search the verbatim text of stored laws, decrees and reglamentos at article "
-        "level. Everyday wording works: the central article for a known concept comes "
-        "first, marked 'Why'. Long articles come as the matching excerpt; call get_article for the full text. "
+        "level (Costa Rica and, with mx-, co- or ar- ids, Mexico, Colombia, Argentina). Filter by area: "
+        "valores, antilavado, datos, internacional, referencia, sociedades (SPV vehicles), fintech. "
+        "Everyday wording works: the central article for a known concept comes first, marked 'Why'. "
+        "Long articles come as the matching excerpt; call get_article for the full text. "
         "Warns when a relevant norm is registered but not stored yet.",
         "inputSchema": {
             "type": "object",

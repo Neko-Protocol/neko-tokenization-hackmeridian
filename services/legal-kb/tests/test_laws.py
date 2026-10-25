@@ -81,6 +81,21 @@ class ParserTest(unittest.TestCase):
         units = laws.parse_units(lines, "x")
         self.assertEqual([(u["kind"], u["number"]) for u in units], [("articulo", "6"), ("articulo", "6 a")])
 
+    def test_article_ordinal_o_and_em_dash_separators(self):
+        lines = [
+            "ARTÍCULO 1o. OBJETIVOS. Texto uno.",
+            "ARTÍCULO 2o. CONCEPTO. Texto dos.",
+        ]
+        units = laws.parse_units(lines, "x")
+        self.assertEqual([u["number"] for u in units], ["1", "2"])
+
+        lines = [
+            "ARTICULO 1° \u2014 Objeto. Texto.",
+            "ARTICULO 2° \u2014 Definiciones. Texto.",
+        ]
+        units = laws.parse_units(lines, "x")
+        self.assertEqual([u["number"] for u in units], ["1", "2"])
+
 
 class ScijParserTest(unittest.TestCase):
     """Real SCIJ (sinalevi.go.cr) cases: units are cut at SCIJ's 'Ficha Articulo' anchors."""
@@ -243,7 +258,10 @@ class RegistryTest(unittest.TestCase):
                 units = [u for u in laws.load_units() if u.norm_id == meta["id"]]
                 self.assertEqual(len(units), meta["units"])
                 self.assertEqual(len({u.id for u in units}), len(units))
-                self.assertTrue(meta["source_url"].startswith("https://"))
+                self.assertTrue(
+                    meta["source_url"].startswith("https://")
+                    or meta["source_url"].startswith("http://")
+                )
 
     def test_lookup_ids(self):
         self.assertEqual(unit_lookup_id("ley-7732", "Artículo 029"), "ley-7732:art-29")

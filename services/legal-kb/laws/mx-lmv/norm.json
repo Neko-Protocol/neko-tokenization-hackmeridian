@@ -1,0 +1,24 @@
+{
+  "id": "mx-lmv",
+  "title": "Ley del Mercado de Valores (México)",
+  "number": "LMV",
+  "type": "ley",
+  "area": "valores",
+  "rank": "ley",
+  "version_date": "",
+  "source_url": "https://www.cnbv.gob.mx/Normatividad/Ley%20del%20Mercado%20de%20Valores.pdf",
+  "retrieved_at": "2026-10-25",
+  "source_sha256": "68aa315d21a0304b7f58db49aeb17332b04eaaf479408b69d022eb39b3ec07bb",
+  "units": 456,
+  "articles": 456,
+  "transitorios": 0,
+  "anexos": 0,
+  "derogados": 1,
+  "warnings": [
+    "duplicate articulo 124",
+    "duplicate articulo 130",
+    "duplicate articulo 100",
+    "duplicate articulo 108 bis",
+    "duplicate articulo 199"
+  ]
+}
