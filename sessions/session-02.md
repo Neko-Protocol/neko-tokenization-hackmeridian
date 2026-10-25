@@ -1,7 +1,7 @@
 # Session 02: Repositories, monorepo and work split
 
-- **Started:** 2026-10-25 13:15 WET (approximate)
-- **Ended:** 2026-10-25 15:19 WET (approximate)
+- **Started:** 2026-10-25 13:15 WET
+- **Ended:** 2026-10-25 15:19 WET
 - **People:** Santiago Villarreal, Kevin Latino, Fabián Sánchez, Matías Aguilar
 - **Goal:** set up the repositories and the monorepo, and split the work.
 
