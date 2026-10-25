@@ -22,30 +22,30 @@
 
 ## Who does what
 
-| Repo                                  | Task                                                                            | Owner            |
-| ------------------------------------- | ------------------------------------------------------------------------------- | ---------------- |
-| Launchpad (this repo)                 | Base setup                                                                      | Santiago         |
-| Launchpad                             | KYC/KYB                                                                         | Fabián           |
-| Launchpad                             | Create account: Privy wallet for the user, linked to KYC (research C-addresses) | Fabián           |
-| Launchpad                             | AI-assisted form                                                                | Fabián, Santiago |
-| Launchpad                             | Tokenization process: factory, token, escrow                                    | Matías           |
-| Launchpad                             | Launch and display on Neko Pro                                                  | Kevin            |
-| Launchpad                             | Issuer dashboard with the user's tokenized assets                               | Kevin            |
-| Neko Pro (web and backend forks)      | KYC/KYB                                                                         | Fabián           |
-| Neko Pro                              | Assets showcase and asset detail                                                | Kevin            |
-| Neko Pro                              | Asset buy and sell                                                              | Matías, Kevin    |
-| Neko admin (in this repo, apps/admin) | Approve or reject tokenization proposals                                        | Santiago         |
-| Neko admin                            | Legal compliance                                                                | Santiago         |
-| Submission                            | Pitch deck                                                                      | Kevin            |
-| Submission                            | Roadmap                                                                         | Fabián           |
-| Submission                            | Video                                                                           | Everyone         |
-| Submission                            | llms.txt, robots.txt and sitemap.xml for the main repo                          | Fabián           |
+| Repo                                       | Task                                                                            | Owner            |
+| ------------------------------------------ | ------------------------------------------------------------------------------- | ---------------- |
+| Launchpad (this repo)                      | Base setup                                                                      | Santiago         |
+| Launchpad                                  | KYC/KYB                                                                         | Fabián           |
+| Launchpad                                  | Create account: Privy wallet for the user, linked to KYC (research C-addresses) | Fabián           |
+| Launchpad                                  | AI-assisted form                                                                | Fabián, Santiago |
+| Launchpad                                  | Tokenization process: factory, token, escrow                                    | Matías           |
+| Launchpad                                  | Launch and display on Neko Pro                                                  | Kevin            |
+| Launchpad                                  | Issuer dashboard with the user's tokenized assets                               | Kevin            |
+| Neko Pro (web and backend forks)           | KYC/KYB                                                                         | Fabián           |
+| Neko Pro                                   | Assets showcase and asset detail                                                | Kevin            |
+| Neko Pro                                   | Asset buy and sell                                                              | Matías, Kevin    |
+| Tokenization admin (this repo, apps/admin) | Approve or reject tokenization proposals                                        | Santiago         |
+| Tokenization admin                         | Legal compliance                                                                | Santiago         |
+| Submission                                 | Pitch deck                                                                      | Kevin            |
+| Submission                                 | Roadmap                                                                         | Fabián           |
+| Submission                                 | Video                                                                           | Everyone         |
+| Submission                                 | llms.txt, robots.txt and sitemap.xml for the main repo                          | Fabián           |
 
 ## The demo slice
 
 What we build and show, end to end, on testnet:
 
-1. **Issuer, Launchpad:** KYB (test data), AI-assisted form, approval in the Neko admin, wallet created, SEP-57 token issued, opportunity launched, issuer dashboard.
+1. **Issuer, Launchpad:** KYB (test data), AI-assisted form, approval in the tokenization admin, wallet created, SEP-57 token issued, opportunity launched, issuer dashboard.
 2. **Investor, Neko Pro:** KYC (test data), opportunities with filters, buy from a minimum amount, funds held in Trustless Work escrow, dashboard showing the investment and each payment or milestone release.
 3. **Issuer that already tokenizes:** shown as a listing in Neko Pro. Neko already reads Etherfuse data in production, so an Etherfuse asset is the natural example.
 
