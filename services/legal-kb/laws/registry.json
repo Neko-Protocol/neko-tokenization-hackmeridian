@@ -1,0 +1,249 @@
+{
+  "description": "Norms the Neko legal engine holds, in order of obligations for tokenization. match_title must appear near the top of the source or the ingest is refused. scij_nrm is the SCIJ norm id (nValor2, sinalevi param1) and scij_version the version id when known (null = take the current version). Non-Costa Rican norms have no scij_nrm and are ingested from a saved file with --file and --url.",
+  "norms": [
+    {
+      "id": "ley-7732",
+      "title": "Ley Reguladora del Mercado de Valores",
+      "number": "7732",
+      "type": "ley",
+      "area": "valores",
+      "rank": "ley",
+      "match_title": "Mercado de Valores",
+      "phase": 1,
+      "order": 1,
+      "scij_nrm": 29302
+    },
+    {
+      "id": "reglamento-oferta-publica",
+      "title": "Reglamento sobre Oferta Pública de Valores",
+      "number": "571",
+      "type": "reglamento",
+      "area": "valores",
+      "rank": "resolucion-general",
+      "match_title": "Oferta P",
+      "phase": 1,
+      "order": 2,
+      "scij_nrm": 57105
+    },
+    {
+      "id": "ley-7786",
+      "title": "Ley sobre Estupefacientes, Sustancias Psicotrópicas, Drogas de Uso no Autorizado, Actividades Conexas, Legitimación de Capitales y Financiamiento al Terrorismo",
+      "number": "7786",
+      "type": "ley",
+      "area": "antilavado",
+      "rank": "ley",
+      "match_title": "Estupefacientes",
+      "phase": 1,
+      "order": 3,
+      "scij_nrm": 29254,
+      "note": "Must include the Ley 10961 reform (article 15 quater, virtual asset service providers registered with SUGEF)."
+    },
+    {
+      "id": "ley-8968",
+      "title": "Ley de Protección de la Persona frente al Tratamiento de sus Datos Personales",
+      "number": "8968",
+      "type": "ley",
+      "area": "datos",
+      "rank": "ley",
+      "match_title": "datos personales",
+      "phase": 1,
+      "order": 4,
+      "scij_nrm": 70975
+    },
+    {
+      "id": "decreto-37554-jp",
+      "title": "Reglamento a la Ley de Protección de la Persona frente al Tratamiento de sus Datos Personales",
+      "number": "37554-JP",
+      "type": "decreto",
+      "area": "datos",
+      "rank": "decreto",
+      "match_title": "datos personales",
+      "phase": 1,
+      "order": 4,
+      "scij_nrm": 74352
+    },
+    {
+      "id": "us-17-cfr-230-reg-d",
+      "title": "Regulation D: Rules Governing the Limited Offer and Sale of Securities Without Registration (17 CFR 230.500 to 230.508)",
+      "number": "17 CFR 230.500-508",
+      "type": "regulation",
+      "area": "internacional",
+      "rank": "decreto",
+      "match_title": "Regulation D",
+      "phase": 1,
+      "order": 5,
+      "scij_nrm": null,
+      "ecfr": {
+        "title": 17,
+        "part": 230,
+        "sections": [
+          "230.500",
+          "230.501",
+          "230.502",
+          "230.503",
+          "230.504",
+          "230.505",
+          "230.506",
+          "230.507",
+          "230.508"
+        ]
+      }
+    },
+    {
+      "id": "us-17-cfr-230-reg-s",
+      "title": "Regulation S: Rules Governing Offers and Sales Made Outside the United States (17 CFR 230.901 to 230.905)",
+      "number": "17 CFR 230.901-905",
+      "type": "regulation",
+      "area": "internacional",
+      "rank": "decreto",
+      "match_title": "230.901",
+      "phase": 1,
+      "order": 5,
+      "scij_nrm": null,
+      "ecfr": {
+        "title": 17,
+        "part": 230,
+        "sections": [
+          "230.901",
+          "230.902",
+          "230.903",
+          "230.904",
+          "230.905"
+        ]
+      }
+    },
+    {
+      "id": "us-17-cfr-227",
+      "title": "Regulation Crowdfunding: General Rules and Regulations (17 CFR part 227)",
+      "number": "17 CFR 227",
+      "type": "regulation",
+      "area": "internacional",
+      "rank": "decreto",
+      "match_title": "Crowdfunding",
+      "phase": 1,
+      "order": 5,
+      "scij_nrm": null,
+      "ecfr": {
+        "title": 17,
+        "part": 227
+      }
+    },
+    {
+      "id": "sv-ley-emision-activos-digitales",
+      "title": "Ley de Emisión de Activos Digitales (El Salvador)",
+      "number": "Decreto Legislativo 643",
+      "type": "ley",
+      "area": "referencia",
+      "rank": "secondary",
+      "match_title": "Activos Digitales",
+      "phase": 1,
+      "order": 6,
+      "scij_nrm": null,
+      "note": "Reference only: not law in Costa Rica."
+    },
+    {
+      "id": "mx-lritf",
+      "title": "Ley para Regular las Instituciones de Tecnología Financiera (México)",
+      "number": "LRITF",
+      "type": "ley",
+      "area": "fintech",
+      "rank": "ley",
+      "match_title": "TECNOLOG",
+      "phase": 1,
+      "order": 7,
+      "scij_nrm": null,
+      "note": "Mexico. Text compiled by CNBV, reforms to DOF 2025-11-14."
+    },
+    {
+      "id": "mx-lmv",
+      "title": "Ley del Mercado de Valores (México)",
+      "number": "LMV",
+      "type": "ley",
+      "area": "valores",
+      "rank": "ley",
+      "match_title": "MERCADO DE VALORES",
+      "phase": 1,
+      "order": 7,
+      "scij_nrm": null,
+      "note": "Mexico. Text compiled by CNBV."
+    },
+    {
+      "id": "mx-lgtoc",
+      "title": "Ley General de Títulos y Operaciones de Crédito (México)",
+      "number": "LGTOC",
+      "type": "ley",
+      "area": "sociedades",
+      "rank": "ley",
+      "match_title": "TULOS Y OPERACIONES",
+      "phase": 1,
+      "order": 7,
+      "scij_nrm": null,
+      "note": "Mexico. Fideicomiso (trust SPV) in articles 381 and following. Orden Jurídico Nacional copy, last reform DOF 2024."
+    },
+    {
+      "id": "mx-lfpiorpi",
+      "title": "Ley Federal para la Prevención e Identificación de Operaciones con Recursos de Procedencia Ilícita (México)",
+      "number": "LFPIORPI",
+      "type": "ley",
+      "area": "antilavado",
+      "rank": "ley",
+      "match_title": "PROCEDENCIA IL",
+      "phase": 1,
+      "order": 7,
+      "scij_nrm": null,
+      "note": "Mexico. Not ingested: the only reachable copy (CNBV) stops at the 2021 reform and misses the DOF 2025-07-16 reform; diputados.gob.mx is unreachable from this network."
+    },
+    {
+      "id": "co-ley-964-2005",
+      "title": "Ley 964 de 2005, mercado público de valores (Colombia)",
+      "number": "964",
+      "type": "ley",
+      "area": "valores",
+      "rank": "ley",
+      "match_title": "964",
+      "phase": 1,
+      "order": 8,
+      "scij_nrm": null,
+      "note": "Colombia. Secretaría del Senado, updated 2026-10-15."
+    },
+    {
+      "id": "co-ley-1258-2008",
+      "title": "Ley 1258 de 2008, sociedad por acciones simplificada (Colombia)",
+      "number": "1258",
+      "type": "ley",
+      "area": "sociedades",
+      "rank": "ley",
+      "match_title": "1258",
+      "phase": 1,
+      "order": 8,
+      "scij_nrm": null,
+      "note": "Colombia. SAS, the usual SPV company. Secretaría del Senado, updated 2026-10-15."
+    },
+    {
+      "id": "ar-ley-26831",
+      "title": "Ley 26.831 de Mercado de Capitales (Argentina)",
+      "number": "26.831",
+      "type": "ley",
+      "area": "valores",
+      "rank": "ley",
+      "match_title": "Mercado de Capitales",
+      "phase": 1,
+      "order": 9,
+      "scij_nrm": null,
+      "note": "Argentina. InfoLEG updated text."
+    },
+    {
+      "id": "ar-ley-25246",
+      "title": "Ley 25.246, encubrimiento y lavado de activos, con la reforma de la Ley 27.739 (Argentina)",
+      "number": "25.246",
+      "type": "ley",
+      "area": "antilavado",
+      "rank": "ley",
+      "match_title": "25.246",
+      "phase": 1,
+      "order": 9,
+      "scij_nrm": null,
+      "note": "Argentina. InfoLEG updated text, includes Ley 27.739 (virtual asset service providers, PSAV, art. 4 bis and 20). The partial veto Decreto 370/2000 printed at the end of the InfoLEG page was cut before ingest. Penal Code articles 277 to 279 as substituted by this law appear as units art-277 to art-279."
+    }
+  ]
+}

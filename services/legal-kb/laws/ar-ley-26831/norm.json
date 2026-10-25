@@ -1,0 +1,22 @@
+{
+  "id": "ar-ley-26831",
+  "title": "Ley 26.831 de Mercado de Capitales (Argentina)",
+  "number": "26.831",
+  "type": "ley",
+  "area": "valores",
+  "rank": "ley",
+  "version_date": "",
+  "source_url": "https://servicios.infoleg.gob.ar/infolegInternet/anexos/205000-209999/206592/texact.htm",
+  "retrieved_at": "2026-10-25",
+  "source_sha256": "b854ffbb3e6a11b375bf4b4914814c803c19b81491a065b079b22135b69c0b45",
+  "units": 158,
+  "articles": 158,
+  "transitorios": 0,
+  "anexos": 0,
+  "derogados": 0,
+  "warnings": [
+    "articulo 129: path polluted: CAPITULO VII Régimen legal de los valores anotados en cuenta o escriturales",
+    "articulo 130: path polluted: CAPITULO VII Régimen legal de los valores anotados en cuenta o escriturales",
+    "articulo 131: path polluted: CAPITULO VII Régimen legal de los valores anotados en cuenta o escriturales"
+  ]
+}

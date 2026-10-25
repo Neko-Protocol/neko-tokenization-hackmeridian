@@ -12,3 +12,5 @@ target/
 contracts/.stellar/
 *.wasm
 test_snapshots/
+__pycache__/
+*.pyc

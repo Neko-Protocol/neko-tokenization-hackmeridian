@@ -1,0 +1,22 @@
+{
+  "id": "co-ley-964-2005",
+  "title": "Ley 964 de 2005, mercado público de valores (Colombia)",
+  "number": "964",
+  "type": "ley",
+  "area": "valores",
+  "rank": "ley",
+  "version_date": "",
+  "source_url": "http://www.secretariasenado.gov.co/senado/basedoc/ley_0964_2005.html",
+  "retrieved_at": "2026-10-25",
+  "source_sha256": "c78bc044ca048278f309c81535c50db794822275c7ff568b7777e54037dfc31b",
+  "units": 86,
+  "articles": 86,
+  "transitorios": 0,
+  "anexos": 0,
+  "derogados": 0,
+  "warnings": [
+    "articulo 12: path polluted: CAPITULO SEGUNDO. ANOTACIÓN EN CUENTA Y OPERACIONES SOBRE VALORES.",
+    "articulo 13: path polluted: CAPITULO SEGUNDO. ANOTACIÓN EN CUENTA Y OPERACIONES SOBRE VALORES.",
+    "articulo 14: path polluted: CAPITULO SEGUNDO. ANOTACIÓN EN CUENTA Y OPERACIONES SOBRE VALORES."
+  ]
+}

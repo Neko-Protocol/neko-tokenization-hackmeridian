@@ -1,0 +1,23 @@
+{
+  "id": "ley-7786",
+  "title": "Ley sobre Estupefacientes, Sustancias Psicotrópicas, Drogas de Uso no Autorizado, Actividades Conexas, Legitimación de Capitales y Financiamiento al Terrorismo",
+  "number": "7786",
+  "type": "ley",
+  "area": "antilavado",
+  "rank": "ley",
+  "version_date": "2026-06-09",
+  "source_url": "https://sinalevi.go.cr/ResultadosNormativa/Informacion?param1=29254&param2=152427&param3=1",
+  "retrieved_at": "2026-10-25",
+  "source_sha256": "b26488218a47e3baa80ed98e20a860f3aeaf11b976554c5914092b27710377d7",
+  "units": 183,
+  "articles": 179,
+  "transitorios": 4,
+  "anexos": 0,
+  "derogados": 3,
+  "warnings": [
+    "note not closed in source: transitorio I: (Nota de Sinalevi: De conformidad con el artículo 1° de la ley N° 9074 del 20 de setiembre de 2012, ",
+    "note not closed in source: transitorio II: (Nota de Sinalevi: De conformidad con el artículo 1° de la ley N° 9074 del 20 de setiembre de 2012, "
+  ],
+  "scij_version_label": "14 de 14",
+  "scij_article_count": 179
+}

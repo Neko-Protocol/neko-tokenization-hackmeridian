@@ -27,6 +27,7 @@ apps/platform/     Launchpad for issuers (Next.js, port 3000)
 apps/admin/        Tokenization admin (Next.js, port 3001)
 packages/stellar/  Shared Stellar network config, RPC/Horizon clients, explorer links, friendbot
 contracts/         SEP-57 RWA token suite (Soroban, OpenZeppelin examples)
+services/legal-kb/ Legal knowledge base (MCP server): securities, AML and data protection laws for tokenization
 docs/              Plans and diagrams
 sessions/          Hackathon work session logs
 ```
