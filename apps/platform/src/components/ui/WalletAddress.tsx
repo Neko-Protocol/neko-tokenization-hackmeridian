@@ -21,12 +21,12 @@ export function WalletAddress({
   };
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/45">
+      <p className="text-[11.5px] font-medium uppercase tracking-[0.12em] text-white/45">
         {label}
       </p>
-      <div className="flex items-center justify-between gap-2 rounded-lg bg-[#2A2A2A] py-2 pl-3 pr-1.5">
+      <div className="flex items-center justify-between gap-2 rounded-xl bg-white/[0.05] py-2.5 pl-3.5 pr-2">
         <span
-          className="truncate font-label text-[13px] text-white/85"
+          className="truncate font-label text-[14px] text-white/85"
           title={address}
         >
           {truncateAddress(address, 6)}
