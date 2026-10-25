@@ -6,3 +6,5 @@ target
 package-lock.json
 contracts/**/test_snapshots
 services/legal-kb/laws
+.env
+.env.*
