@@ -1,6 +1,6 @@
 # Deploy
 
-Four services for the demo, all on testnet:
+Five services for the demo, all on testnet:
 
 | Service            | Repo                           | Host                    | Root                |
 | ------------------ | ------------------------------ | ----------------------- | ------------------- |
