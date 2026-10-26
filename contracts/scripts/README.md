@@ -129,12 +129,26 @@ the same as everything that exists: the factory's own registry is append-only,
 so a vault that was abandoned part-way stays in it and is simply left out of
 the file.
 
-| Vault             | Asset                      | State                                         |
-| ----------------- | -------------------------- | --------------------------------------------- |
-| `casa-heredia`    | the platform's test USDC   | `Settled` — the whole money path              |
-| `torre-cartago`   | our test USDT0             | `Settled` — the same path, second asset       |
-| `finca-turrialba` | the platform's test USDC   | `Funding` — the one to point `run-demo.sh` at |
-| `casa-circle`     | Circle's real testnet USDC | `Funding` — waiting on the faucet             |
+| Vault           | Asset                      | State                             |
+| --------------- | -------------------------- | --------------------------------- |
+| `torre-cartago` | our test USDT0             | `Settled` — the whole money path  |
+| `casa-circle`   | Circle's real testnet USDC | `Funding` — waiting on the faucet |
+
+Both of these name their asset explicitly, which is the shape to copy. The
+vaults from before the asset became configurable are gone from the file: they
+ran on the platform's test USDC against an earlier token template, so quoting
+them would be quoting a build that is no longer what the factory deploys.
+
+That leaves `casa-circle` as the only vault at `Funding`, and it cannot move
+until the three addresses are funded from Circle's faucet. For a run that
+depends on nobody else, issue a fresh vault on our own USDT0 — we hold that
+issuer, so `run-demo.sh` can mint every amount it needs:
+
+```bash
+ASSET_SAC=$(jq -r '.assets.USDT0.sac' ../../deployments/testnet.json) \
+ASSET_CODE=USDT0 ASSET_ISSUER=$(jq -r '.assets.USDT0.issuer' ../../deployments/testnet.json) \
+TOKEN_SYMBOL=TORRE2 ./deploy-vault.sh torre-sabana
+```
 
 Nothing enforces that two vaults have different token symbols — neither the
 factory nor the token checks it. For the contracts that is harmless, since each
