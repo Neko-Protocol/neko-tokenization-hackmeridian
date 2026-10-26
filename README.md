@@ -28,6 +28,8 @@ The backend and web repos are forks of existing Neko code. Their git tag `pre-ha
 
 Start with [llms.txt](llms.txt) for the project idea, a reading order, the three-repository integration map and implementation evidence. Use the files in the branch or commit you are reviewing; the discovery URLs refer to `main`. Distinguish planned features from verified runtime behavior.
 
+The [review memory implementation guide](docs/review-memory.md) traces one concrete contribution across the backend and admin: the user problem, its place in the proposal review workflow, the search algorithm, source links pinned to commits, test coverage and delivery limits. It distinguishes AI-assisted preparation, deterministic legal checks, prior human decisions and the administrator's final decision.
+
 [sitemap.xml](sitemap.xml) is a curated index of this repository's public source documents using raw GitHub URLs. [robots.txt](robots.txt) provides advisory crawl guidance and points to that index.
 
 ### Directory map
@@ -45,6 +47,8 @@ sessions/          Hackathon work session logs
 ## Tokenization admin
 
 `apps/admin` is where Neko reviews tokenization applications: a list by status, the asset and issuer details (KYB status, testnet wallet), approve, reject or request changes with a note, and a compliance checklist. The checklist is rule based (Costa Rica public offering test, SUGEVAL private offer accreditation, investor consent, SUGEF registration for virtual asset service providers, personal data, US investors, Mexico, Colombia and Argentina) and shows the real text of every article it cites, pulled from Neko Legal KB.
+
+The **Similar cases** addition connects this review to earlier decisions stored in Supabase. It ranks comparable decided proposals, shows their outcomes and reviewer notes, and explains each field match. A saved eligible decision can become a candidate for a later review without retraining a model. The administrator still decides; historical outcomes do not determine approval or establish legal compliance. The paired [backend PR #5](https://github.com/Neko-Protocol/neko-backend-hackmeridian/pull/5) and [admin PR #16](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian/pull/16) were open and unmerged when checked on 26 October 2026. See [review memory](docs/review-memory.md) for implementation evidence and validation boundaries.
 
 ## Neko Legal KB
 
@@ -75,13 +79,14 @@ For testnet deployment of the RWA contracts, follow [contracts/rwa/DEPLOY.md](co
 
 ## How we built it
 
-| Doc                                  | What it is                                                                                                |
-| ------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| [ROADMAP.md](ROADMAP.md)             | Business outlook for three to six months after the hackathon and how it connects to the existing Neko app |
-| [docs/plan.md](docs/plan.md)         | The working plan: demo slice, workstreams, checkpoints, roadmap                                           |
-| [docs/deploy.md](docs/deploy.md)     | How to deploy the backend (Railway), the web apps (Vercel) and the database                               |
-| [docs/diagrams.md](docs/diagrams.md) | Product flows                                                                                             |
-| [sessions/](sessions/)               | One log per work session: start and end time (WET), what we did, decisions, commits and AI use            |
+| Doc                                            | What it is                                                                                                |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [ROADMAP.md](ROADMAP.md)                       | Business outlook for three to six months after the hackathon and how it connects to the existing Neko app |
+| [docs/plan.md](docs/plan.md)                   | The working plan: demo slice, workstreams, checkpoints, roadmap                                           |
+| [docs/deploy.md](docs/deploy.md)               | How to deploy the backend (Railway), the web apps (Vercel) and the database                               |
+| [docs/diagrams.md](docs/diagrams.md)           | Product flows                                                                                             |
+| [docs/review-memory.md](docs/review-memory.md) | How legal context, prior decisions and human review fit together, with source and test evidence           |
+| [sessions/](sessions/)                         | One log per work session: start and end time (WET), what we did, decisions, commits and AI use            |
 
 ## Team
 
