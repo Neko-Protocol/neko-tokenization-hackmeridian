@@ -215,6 +215,11 @@ export function AssistantPanel({
               </div>
             ) : (
               <div key={item.id} className="flex flex-col gap-3 text-[14px] leading-relaxed text-white/75">
+                {item.warning && (
+                  <p role="status" className="rounded-lg border border-amber-300/20 bg-amber-300/[0.06] px-3 py-2 text-[12px] text-amber-200/90">
+                    {item.warning}
+                  </p>
+                )}
                 {item.steps?.map((step, i) => (
                   <span key={i} className="inline-flex items-center gap-1.5 text-[12px] text-white/35">
                     <Search className="h-3 w-3" /> {step}

@@ -17,6 +17,8 @@ export interface ChatItem {
   text: string;
   steps?: string[];
   proposals?: Proposal[];
+  /** Shown above the reply, e.g. when the legal knowledge base is unreachable. */
+  warning?: string;
   error?: string;
 }
 
@@ -177,13 +179,15 @@ export function useAssistant({
             buffer = buffer.slice(cut + 2);
             if (!chunk.startsWith("data: ")) continue;
             const event = JSON.parse(chunk.slice(6)) as
+              | { type: "notice"; code: string; message: string }
               | { type: "text"; text: string }
               | { type: "tool"; label: string }
               | { type: "proposal"; proposals: Proposal[] }
               | { type: "break" }
               | { type: "error"; message: string }
               | { type: "done" };
-            if (event.type === "text") patch((i) => ({ ...i, text: i.text + event.text }));
+            if (event.type === "notice") patch((i) => ({ ...i, warning: event.message }));
+            else if (event.type === "text") patch((i) => ({ ...i, text: i.text + event.text }));
             else if (event.type === "break")
               patch((i) => (i.text && !i.text.endsWith("\n\n") ? { ...i, text: `${i.text}\n\n` } : i));
             else if (event.type === "tool")

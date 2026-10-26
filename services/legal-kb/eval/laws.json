@@ -1,0 +1,102 @@
+[
+  {
+    "q": "registro ante SUGEF de proveedores de servicios de activos virtuales",
+    "expect": "ley-7786:art-15-quater",
+    "lang": "es"
+  },
+  {
+    "q": "Does a virtual asset service provider in Costa Rica have to register with SUGEF?",
+    "expect": "ley-7786:art-15-quater",
+    "lang": "en"
+  },
+  {
+    "q": "definición de oferta pública de valores en Costa Rica",
+    "expect": "ley-7732:art-2",
+    "lang": "es"
+  },
+  {
+    "q": "What counts as a public offering of securities under Costa Rican law?",
+    "expect": "ley-7732:art-2",
+    "lang": "en"
+  },
+  {
+    "q": "presunciones de oferta pública de valores",
+    "expect": "reglamento-oferta-publica:art-6",
+    "lang": "es"
+  },
+  {
+    "q": "autorización previa de SUGEVAL para hacer oferta pública",
+    "expect": "ley-7732:art-10",
+    "lang": "es"
+  },
+  {
+    "q": "oferta privada dirigida a inversionistas sofisticados o institucionales",
+    "expect": "reglamento-oferta-publica:art-8-bis",
+    "lang": "es"
+  },
+  {
+    "q": "consentimiento informado para el tratamiento de datos personales",
+    "expect": "ley-8968:art-5",
+    "lang": "es"
+  },
+  {
+    "q": "How must consent to process personal data be given in Costa Rica?",
+    "expect": "ley-8968:art-5",
+    "lang": "en"
+  },
+  {
+    "q": "formalidades del consentimiento del titular de los datos",
+    "expect": "decreto-37554-jp:art-5",
+    "lang": "es"
+  },
+  {
+    "q": "transferencia de datos personales a terceros",
+    "expect": "ley-8968:art-14",
+    "lang": "es"
+  },
+  {
+    "q": "Regulation D Rule 506 exemption for private placements to accredited investors",
+    "expect": "us-17-cfr-230-reg-d:sec-230.506",
+    "lang": "en"
+  },
+  {
+    "q": "definition of accredited investor",
+    "expect": "us-17-cfr-230-reg-d:sec-230.501",
+    "lang": "en"
+  },
+  {
+    "q": "offshore offering to non US persons under Regulation S",
+    "expect": "us-17-cfr-230-reg-s:sec-230.903",
+    "lang": "en"
+  },
+  {
+    "q": "oferta privada de valores en México",
+    "expect": "mx-lmv:art-8",
+    "lang": "es"
+  },
+  {
+    "q": "When is an offering in Mexico private and exempt from registration?",
+    "expect": "mx-lmv:art-8",
+    "lang": "en"
+  },
+  {
+    "q": "concepto de valor en Colombia",
+    "expect": "co-ley-964-2005:art-2",
+    "lang": "es"
+  },
+  {
+    "q": "protección de datos personales en Colombia, ámbito de aplicación y principios",
+    "expect": "co-ley-1258-2008:art-4",
+    "lang": "es"
+  },
+  {
+    "q": "definiciones de oferta pública en la ley de mercado de capitales de Argentina",
+    "expect": "ar-ley-26831:art-2",
+    "lang": "es"
+  },
+  {
+    "q": "registro de emisores de tokens ante la SUGEF de Costa Rica para activos digitales",
+    "expect": "ley-7786:art-15-quater",
+    "lang": "es"
+  }
+]

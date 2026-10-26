@@ -14,7 +14,7 @@ Order: database, backend, then the three web apps (they need the backend URL).
 
 ## 1. Database (Supabase)
 
-Run the migrations from `neko-web-hackmeridian/supabase/migrations` up to `0030_launchpad_applications.sql`. Add each admin email to `admin_emails` (`is_active = true`).
+Run every migration in `neko-web-hackmeridian/supabase/migrations`, in order, up to `0033_launchpad_deployments.sql`. The Launchpad needs `0029` (KYC/KYB) and `0030` (applications), Neko Pro needs `0031_launchpad_investors.sql`, and launches need `0032` (minimum raise) and `0033` (deployments). Add each admin email to `admin_emails` (`is_active = true`).
 
 ## 2. Backend on Railway
 
@@ -26,7 +26,8 @@ Run the migrations from `neko-web-hackmeridian/supabase/migrations` up to `0030_
    - Launchpad: `PRIVY_APP_ID`, `PRIVY_APP_SECRET`, `PRIVY_VERIFICATION_KEY`; Didit (`DIDIT_API_KEY`, `DIDIT_WEBHOOK_SECRET`, `DIDIT_KYC_WORKFLOW_ID`, `DIDIT_KYB_WORKFLOW_ID`) or `KYC_MOCK_ENABLED=true` for the demo; `REVIEW_SKIP_ENABLED=true` to let judges skip application pre-approval; `LAUNCHPAD_APP_URL` (the Launchpad URL from step 3).
    - Admin sign-in codes are sent by email: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`.
    - `CORS_ORIGIN`: the four web app URLs.
-4. Generate a public domain. That URL is `BACKEND_URL` for the web apps.
+   - Assistant and contracts: `ANTHROPIC_API_KEY`, `LAUNCHPAD_RAG_URL` (Legal KB connector URL), `NEKO_MANAGER_SECRET`, `NEKO_CLAIM_SIGNING_KEY` and the contract IDs from `deployments/testnet.json` (see the backend `.env.example`). Without `LAUNCHPAD_RAG_URL` the assistant still answers but shows the issuer that legal points are not verified.
+4. Generate a public domain. That URL is the backend URL for the web apps: `BACKEND_URL` in the Launchpad and admin, `BACKEND_INTERNAL_URL` in Neko Pro.
 
 ## 3. Web apps on Vercel
 
@@ -36,7 +37,8 @@ Variables (Project Settings > Environment Variables):
 
 | Variable                                                                                        | Launchpad | Admin | Neko Pro               |
 | ----------------------------------------------------------------------------------------------- | --------- | ----- | ---------------------- |
-| `BACKEND_URL`                                                                                   | yes       | yes   | yes                    |
+| `BACKEND_URL`                                                                                   | yes       | yes   |                        |
+| `BACKEND_INTERNAL_URL` (Neko Pro's proxy reads this name)                                       |           |       | yes                    |
 | `BACKEND_INTERNAL_KEY` (= backend `INTERNAL_API_KEY`)                                           | yes       | yes   | yes                    |
 | `NEXT_PUBLIC_STELLAR_NETWORK=testnet` and the other `NEXT_PUBLIC_STELLAR_*` from `.env.example` | yes       | yes   |                        |
 | `NEXT_PUBLIC_PRIVY_APP_ID`, `NEXT_PUBLIC_PRIVY_CLIENT_ID`                                       | yes       |       | see its `.env.example` |
@@ -48,9 +50,23 @@ Variables (Project Settings > Environment Variables):
 
 After the backend has its final URL, set `LAUNCHPAD_APP_URL` and `CORS_ORIGIN` on Railway and redeploy it.
 
-## 4. Smoke test
+## 4. Contracts (only to redeploy)
+
+The testnet contracts in `deployments/testnet.json` are already live. To rebuild and test them, build the WASM first: the tests import the built artifacts.
+
+```bash
+npm run contracts:build   # stellar contract build
+npm run contracts:test    # builds again, then cargo test
+```
+
+## 5. Smoke test
+
+The check is done when an investment is on chain, not when a page loads. Record each value in [evidence.md](evidence.md).
 
 1. `GET <backend>/health` answers ok.
 2. Launchpad: KYB with the mock, account and testnet wallet created.
-3. Submit an application, then sign in to the admin, open it, check the compliance panel loads its citations, approve it.
-4. Neko Pro: the opportunities page loads.
+3. Submit an application with the assistant open: ask one legal question (a `kb_` tool runs) and one question about past decisions (`find_precedents` runs). Note the application ID.
+4. Admin: open that application, check the compliance panel loads its citations and the Similar cases panel answers, approve it. (For judging, the demo-only skip on the Launchpad can approve it instead when `REVIEW_SKIP_ENABLED` is on; say so in the demo.)
+5. Launchpad: launch it (token symbol and funding deadline). Note the vault contract ID shown on the vault panel.
+6. Neko Pro: verify a second wallet (KYC mock), confirm it shows as registered on chain, open the same opportunity and invest a small amount of test USDC. Note the transaction hash and check it on stellar.expert (testnet).
+7. Neko Pro dashboard shows the vault token balance. A wallet without on-chain identity cannot receive the token (the contract rejects it).

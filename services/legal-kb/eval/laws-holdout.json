@@ -1,0 +1,62 @@
+[
+  {
+    "q": "creación y funciones de la Superintendencia General de Valores costarricense",
+    "expect": "ley-7732:art-3",
+    "lang": "es"
+  },
+  {
+    "q": "Must securities market participants register in Costa Rica's National Registry of Securities and Intermediaries before a public offering?",
+    "expect": "ley-7732:art-6",
+    "lang": "en"
+  },
+  {
+    "q": "alcance territorial de una oferta pública de valores realizada desde o hacia Costa Rica según el reglamento",
+    "expect": "reglamento-oferta-publica:art-5",
+    "lang": "es"
+  },
+  {
+    "q": "revocación del consentimiento del titular para el tratamiento de datos en el reglamento costarricense",
+    "expect": "decreto-37554-jp:art-7",
+    "lang": "es"
+  },
+  {
+    "q": "inscripción en el Registro Nacional de Valores para hacer oferta pública en territorio mexicano",
+    "expect": "mx-lmv:art-7",
+    "lang": "es"
+  },
+  {
+    "q": "How does Mexico's Fintech law define the CNBV among its terms?",
+    "expect": "mx-lritf:art-4",
+    "lang": "en"
+  },
+  {
+    "q": "qué es el fideicomiso en la ley mexicana de títulos y operaciones de crédito",
+    "expect": "mx-lgtoc:art-381",
+    "lang": "es"
+  },
+  {
+    "q": "cómo se constituye una sociedad por acciones simplificada en Colombia",
+    "expect": "co-ley-1258-2008:art-1",
+    "lang": "es"
+  },
+  {
+    "q": "Can shares of a Colombian SAS be listed or traded on the public securities market?",
+    "expect": "co-ley-1258-2008:art-4",
+    "lang": "en"
+  },
+  {
+    "q": "naturaleza autárquica de la Comisión Nacional de Valores argentina",
+    "expect": "ar-ley-26831:art-6",
+    "lang": "es"
+  },
+  {
+    "q": "definición de activos virtuales en la ley argentina de lavado de activos",
+    "expect": "ar-ley-25246:art-4-bis",
+    "lang": "es"
+  },
+  {
+    "q": "definición de activo digital en la ley de emisión de activos digitales de El Salvador",
+    "expect": "sv-ley-emision-activos-digitales:art-3",
+    "lang": "es"
+  }
+]

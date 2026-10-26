@@ -125,15 +125,21 @@ class CorpusTest(unittest.TestCase):
 
 
 class RetrievalTest(unittest.TestCase):
-    def test_eval_skipped_when_missing(self):
-        eval_dir = ROOT / "eval"
-        if (eval_dir / "questions.json").exists() or (eval_dir / "sections.json").exists():
-            self.skipTest("eval files present; hit-rate checks are optional here")
-        kb = KnowledgeBase()
-        self.assertIn("tokenization-obligations", kb.docs)
-        hits, total = run_eval(kb)
-        self.assertEqual(hits, 0)
-        self.assertEqual(total, 0)
+    def test_eval_requires_declared_datasets(self):
+        """Missing declared eval files must error, not print a silent skip."""
+        import neko_legal_kb.cli as cli
+
+        real = cli.REPO_ROOT
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            (tmp_path / "eval").mkdir()
+            cli.REPO_ROOT = tmp_path
+            try:
+                with self.assertRaises(SystemExit) as cm:
+                    cli.run_eval(KnowledgeBase(root=tmp_path / "empty-corpus"))
+                self.assertEqual(cm.exception.code, 2)
+            finally:
+                cli.REPO_ROOT = real
 
 
 class McpTest(unittest.TestCase):

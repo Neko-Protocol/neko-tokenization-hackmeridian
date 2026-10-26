@@ -217,8 +217,8 @@ export function ApplicationDetail({ id }: { id: string }) {
 
           {app.ai_summary ? (
             <SectionCard
-              title="AI summary from the issuer"
-              description="Text sent by the issuer's Launchpad form together with the application. Neko does not generate or check it, so read it as the issuer's own pitch, not as a review."
+              title="AI-generated summary, not verified"
+              description="Written by Neko's backend with Claude after the issuer submits, from the application fields and the issuer's conversation with the Launchpad assistant. It is a starting point for the review, not a finding: check every claim against the application and its documents."
               action={
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-2.5 py-1 text-[11px] font-medium text-amber-200">
                   <Sparkles className="h-3 w-3" />

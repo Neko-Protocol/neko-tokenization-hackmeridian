@@ -1,0 +1,18 @@
+[
+  {
+    "q": "obligaciones para tokenizar un activo real en Costa Rica",
+    "expect": "tokenization-obligations"
+  },
+  {
+    "q": "SPV vehicle to hold the asset in Mexico or Colombia",
+    "expect": "latam-spv-and-obligations"
+  },
+  {
+    "q": "sociedad vehículo de propósito especial en Latinoamérica",
+    "expect": "latam-spv-and-obligations"
+  },
+  {
+    "q": "checklist of AML and data protection obligations for a token issuer",
+    "expect": "tokenization-obligations"
+  }
+]
