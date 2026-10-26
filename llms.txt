@@ -18,6 +18,14 @@ This file is a navigation aid, not evidence that a feature is complete. When eva
 - [Session logs](sessions/session-04.md): One log per work session (01 to 04) with times, decisions, PRs and AI use.
 - [Repository source sitemap](sitemap.xml): Curated raw-file URLs for this repo's main branch; not an inventory of deployed application pages.
 
+## Live deployments
+
+Hackathon contracts and vaults are on Stellar testnet.
+
+- [Launchpad](https://launch.tryneko.io): Issuer website for businesses and asset owners: KYB, AI-assisted application form, token launch, vault follow-up, milestone evidence and repayments. Source: apps/platform in this repository.
+- [Tokenization admin](https://admin-tokenization.tryneko.io): Neko's legal and compliance review website (login required): application review, compliance checklist with cited legal articles, similar cases, approval and vault operations. Source: apps/admin in this repository.
+- [Neko Pro investor app](https://hackmeridian.tryneko.io): Investor website: KYC verification badge, on-chain identity and access to Launchpad opportunities. Source: the neko-web-hackmeridian repository.
+
 ## Contracts and on-chain record
 
 - [Contracts README](contracts/README.md): The SEP-57 RWA stack from OpenZeppelin stellar-contracts, plus Neko's factory, vault and milestone tracker. Contract tests run with `npm run contracts:test`.
