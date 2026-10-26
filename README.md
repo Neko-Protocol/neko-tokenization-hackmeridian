@@ -12,6 +12,23 @@ Tokenizing is still hard, and even when you manage it, you have no buyers. Neko 
 
 See the [roadmap](ROADMAP.md) for our business direction three to six months after the hackathon by bringing in issuers, connecting more opportunities to the existing Neko app, and growing distribution.
 
+## Live deployments
+
+The project runs as three separate websites, one per audience. All three use Stellar testnet for the hackathon contracts and vaults.
+
+- **Launchpad**: https://launch.tryneko.io
+  - Who: businesses and asset owners who want to tokenize an asset.
+  - What: KYB, AI-assisted application form, token launch, vault follow-up, milestone evidence and repayments.
+  - Source: `apps/platform` in this repo.
+- **Tokenization admin**: https://admin-tokenization.tryneko.io
+  - Who: Neko's legal and compliance team (login required).
+  - What: review applications, compliance checklist with cited legal articles, similar cases, approve and run vaults.
+  - Source: `apps/admin` in this repo.
+- **Neko Pro (investor app)**: https://hackmeridian.tryneko.io
+  - Who: investors.
+  - What: KYC verification badge, on-chain identity, and access to opportunities launched through the Launchpad.
+  - Source: [neko-web-hackmeridian](https://github.com/Neko-Protocol/neko-web-hackmeridian).
+
 ## Repositories
 
 | Repo                                                                                                          | What lives there                                                                                     |
