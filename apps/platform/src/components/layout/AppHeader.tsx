@@ -10,7 +10,7 @@ export function AppHeader({
   wide?: boolean;
 }) {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-white/5 bg-[#121212]/90 backdrop-blur-md">
+    <header className="sticky top-0 z-40 w-full border-b border-white/5 bg-[#191918]/90 backdrop-blur-md">
       <div
         className={cn(
           "mx-auto flex h-16 items-center justify-between gap-4 px-4 sm:px-6",
