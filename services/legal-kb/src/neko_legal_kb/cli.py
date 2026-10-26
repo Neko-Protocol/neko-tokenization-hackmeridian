@@ -68,24 +68,23 @@ def llms_txt(kb):
 
 def run_eval(kb, k=3):
     """Top-k hit rates on versioned question sets: guides by document (eval/questions.json)
-    and section (eval/sections.json), and verbatim law articles (eval/laws.json, through
+    and verbatim law articles (eval/laws.json and eval/laws-holdout.json, through
     search_law, the tool the Launchpad assistant uses first).
 
-    Skips gracefully when eval files are not present."""
+    Declared datasets that are missing are an error. Unknown extra files in eval/ are ignored."""
     eval_dir = REPO_ROOT / "eval"
     total_hits = total = 0
-    ran = False
     sets = (
         ("questions.json", "doc_id", kb.search),
-        ("sections.json", "chunk_id", kb.search),
         ("laws.json", "id", kb.search_law),
+        ("laws-holdout.json", "id", kb.search_law),
     )
+    missing = [name for name, _, _ in sets if not (eval_dir / name).exists()]
+    if missing:
+        print(f"eval: missing declared dataset(s): {', '.join(missing)}", file=sys.stderr)
+        sys.exit(2)
     for name, key, search in sets:
         path = eval_dir / name
-        if not path.exists():
-            print(f"{name}: skipped (missing {path})")
-            continue
-        ran = True
         qs = json.loads(path.read_text(encoding="utf-8"))
         hits = 0
         for item in qs:
@@ -96,9 +95,6 @@ def run_eval(kb, k=3):
                 print(f"MISS [{name}] {item['q']} -> expected {item['expect']}, got {got}")
         print(f"{name}: top-{k} hit rate {hits}/{len(qs)}")
         total_hits, total = total_hits + hits, total + len(qs)
-    if not ran:
-        print("eval: no eval files found; nothing to run")
-        return 0, 0
     return total_hits, total
 
 

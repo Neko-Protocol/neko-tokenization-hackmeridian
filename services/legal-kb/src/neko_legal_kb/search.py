@@ -24,7 +24,10 @@ LAW_STOPWORDS = STOPWORDS | set(
     """puedo puede pueden debo debe deben hay cuanto cuanta cuantos cuantas
     cuando realidad algo alguna algun nada eso esa ese les nos tienen tengan
     tener hacer hace pasa pasar quiero quieren necesito estoy esta estan ser
-    son fue era mas menos muy otro otra todo todos cada porque pregunta""".split()
+    son fue era mas menos muy otro otra todo todos cada porque pregunta
+    when from under into than about also into which that this these those
+    counts count must should may can will would could does did has have had
+    with without within during before after between among""".split()
 )
 
 
@@ -44,13 +47,193 @@ def match_expression(q):
 # Multi-word keys match when the phrase appears in the folded query.
 LAW_SYNONYMS = {
     "oferta publica": ["oferta publica", "valores", "autorizacion", "superintendencia"],
+    "public offering": ["oferta publica", "public offering", "securities", "valores"],
+    "oferta privada": ["oferta privada", "private offering", "acreditacion", "inversionistas"],
+    "private offering": ["oferta privada", "private offering", "private placement", "inversionistas"],
+    "private placement": ["oferta privada", "private placement", "accredited investors", "inversionistas"],
     "token": ["valor", "activo digital", "activo virtual"],
     "activos virtuales": ["activos virtuales", "proveedores de servicios", "15 quater"],
+    "activo digital": ["activo digital", "activos digitales", "digital asset"],
     "lavado": ["legitimacion de capitales", "financiamiento al terrorismo", "sujetos obligados"],
     "kyc": ["identificacion", "debida diligencia", "cliente"],
     "datos personales": ["datos personales", "consentimiento informado", "responsable de la base de datos"],
     "sugef": ["Superintendencia General de Entidades Financieras", "inscripcion"],
+    "sugeval": ["Superintendencia General de Valores", "autorizacion", "oferta publica"],
+    "cnbv": ["Comision Nacional Bancaria y de Valores", "Registro Nacional de Valores"],
+    "cnv": ["Comision Nacional de Valores", "valores negociables"],
+    "fideicomiso": ["fideicomiso", "fideicomitente", "fiduciaria"],
+    "autorizacion previa": ["autorizacion", "autorizadas", "mercado primario", "oferta publica"],
+    "regulation s": ["regulation s", "offshore", "offshore transaction", "non us person"],
+    "offshore": ["offshore", "regulation s", "outside the united states"],
 }
+
+# Country / regulator cues in the query -> jurisdiction codes used on norms.
+# Longer phrases are matched first so "estados unidos mexicanos" wins over "estados unidos".
+_JURISDICTION_PHRASES = (
+    ("mx", (
+        "estados unidos mexicanos", "united mexican states",
+        "mexico", "mexicano", "mexicana", "mexicanos", "mexicanas",
+        "mexican", "mexicans", "cnbv",
+    )),
+    ("us", (
+        "united states", "estados unidos", "u.s.", "usa", "american", "americans",
+        "regulation d", "regulation s", "regulation crowdfunding", "cfr",
+    )),
+    ("cr", (
+        "costa rica", "costarricense", "costarricenses", "costa rican", "costa ricans",
+        "sugef", "sugeval", "conassif",
+    )),
+    ("co", (
+        "colombia", "colombiano", "colombiana", "colombianos", "colombianas",
+        "colombian", "colombians", "superintendencia financiera",
+    )),
+    ("ar", (
+        "argentina", "argentino", "argentinos", "argentinas",
+        "argentine", "argentinian", "cnv",
+    )),
+    ("sv", (
+        "el salvador", "salvadoreno", "salvadorena", "salvadorenos", "salvadorenas",
+        "salvadoran", "salvadorian", "cnad",
+    )),
+)
+
+# Soft re-rank when the query names a jurisdiction; do not hard-filter.
+JURISDICTION_BOOST = 2.8
+JURISDICTION_PENALTY = 0.12
+# Extra when distinctive query tokens also appear in the norm title (e.g. LGTOC).
+NORM_TITLE_MATCH_BOOST = 1.35
+# Definition-style questions prefer articles that define terms.
+DEFINITION_BOOST = 1.45
+_DEF_QUERY = re.compile(
+    r"\b(definicion|definiciones|definition|definitions|concepto|concept|what counts|counts as)\b"
+)
+_DEF_TEXT = re.compile(
+    r"\b(se entendera por|se entiende por|para efectos de (esta|la presente)|"
+    r"definiciones\.|concepto de|is defined as|shall have the meanings?)\b"
+)
+
+
+def detect_jurisdictions(query):
+    """Return jurisdiction codes mentioned in the query (country, demonym, or regulator)."""
+    folded = fold(query)
+    # Normalize punctuation so "U.S." and "Costa-Rican" still match.
+    spaced = re.sub(r"[./_-]+", " ", folded)
+    spaced = re.sub(r"\s+", " ", spaced).strip()
+    found = set()
+    for code, phrases in _JURISDICTION_PHRASES:
+        for phrase in phrases:
+            p = fold(phrase).strip()
+            if not p:
+                continue
+            if " " in p:
+                if p in spaced:
+                    found.add(code)
+            elif re.search(r"(?<!\w)" + re.escape(p) + r"(?!\w)", spaced):
+                found.add(code)
+    # Bare "us" only as a whole word (avoids matching inside "versus").
+    if re.search(r"(?<!\w)us(?!\w)", spaced):
+        found.add("us")
+    # "Estados Unidos Mexicanos" must not also count as the US.
+    if "estados unidos mexicanos" in spaced or "united mexican states" in spaced:
+        found.discard("us")
+        found.add("mx")
+    return found
+
+
+def norm_jurisdiction(norm):
+    """Jurisdiction of a stored norm from id prefix, title, or source URL."""
+    nid = (norm.get("id") or "").lower()
+    for prefix, code in (
+        ("mx-", "mx"),
+        ("co-", "co"),
+        ("ar-", "ar"),
+        ("us-", "us"),
+        ("sv-", "sv"),
+    ):
+        if nid.startswith(prefix):
+            return code
+    title = fold(norm.get("title") or "")
+    url = fold(norm.get("source_url") or "")
+    if "mexico" in title or "mexican" in title or "cnbv.gob.mx" in url:
+        return "mx"
+    if "colombia" in title or "senado.gov.co" in url:
+        return "co"
+    if "argentina" in title or "infoleg" in url:
+        return "ar"
+    if "el salvador" in title or "salvador" in title:
+        return "sv"
+    if (
+        "united states" in title
+        or "regulation d" in title
+        or "regulation s" in title
+        or "crowdfunding" in title
+        or "ecfr.gov" in url
+        or "17 cfr" in title
+    ):
+        return "us"
+    if "sinalevi.go.cr" in url or "scij" in url:
+        return "cr"
+    # Unprefixed corpus norms (Ley 7732, reglamentos SCIJ, etc.) are Costa Rican.
+    return "cr"
+
+
+def jurisdiction_factor(query_jurisdictions, norm):
+    """Multiply BM25-adjusted score: boost matching jurisdiction, down-weight others."""
+    if not query_jurisdictions:
+        return 1.0
+    nj = norm_jurisdiction(norm)
+    if nj in query_jurisdictions:
+        return JURISDICTION_BOOST
+    return JURISDICTION_PENALTY
+
+
+# Tokens too common across securities norms to justify a title boost on their own.
+_TITLE_WEAK_TERMS = frozenset(
+    "valores valor oferta publica privada ley mercado titulo titulos credito operaciones "
+    "activo activos digital digitales virtual virtuales datos personales proteccion".split()
+)
+
+
+def norm_title_factor(query, norm):
+    """Modest boost when the query shares a distinctive phrase or rare tokens with the norm title."""
+    title = fold(norm.get("title") or "")
+    if not title:
+        return 1.0
+    folded = fold(query)
+    # "regulation s/d", "titulos y operaciones de credito", "emision de activos digitales", ...
+    words = re.findall(r"\w+", folded)
+    for n in (4, 3, 2):
+        for i in range(len(words) - n + 1):
+            phrase = " ".join(words[i : i + n])
+            if len(phrase) < 10 or phrase in ("oferta publica", "oferta privada", "mercado de valores"):
+                continue
+            if phrase in title:
+                return NORM_TITLE_MATCH_BOOST
+    title_words = set(re.findall(r"\w+", title))
+    q_terms = [
+        t
+        for t in set(words)
+        if t not in LAW_STOPWORDS and t not in _TITLE_WEAK_TERMS and len(t) > 3
+    ]
+    if not q_terms:
+        return 1.0
+    hits = sum(1 for t in q_terms if t in title_words or any(tw.startswith(_stem(t)) for tw in title_words))
+    if hits >= 2:
+        return NORM_TITLE_MATCH_BOOST
+    return 1.0
+
+
+def definition_factor(query, unit):
+    """Boost definitional articles when the question asks for a definition or concept."""
+    if not _DEF_QUERY.search(fold(query)):
+        return 1.0
+    heading = fold(unit.heading or "")
+    if heading.startswith("definicion") or heading in ("definiciones", "concepto", "conceptos"):
+        return DEFINITION_BOOST
+    sample = heading + " " + fold(unit.text[:450])
+    if _DEF_TEXT.search(sample):
+        return DEFINITION_BOOST
+    return 1.0
 
 
 def law_match_expression(q, extra=()):
@@ -58,10 +241,14 @@ def law_match_expression(q, extra=()):
     terms = [t for t in re.findall(r"\w+", folded) if t not in LAW_STOPWORDS and len(t) > 1]
     for phrase in extra:
         terms += [t for t in re.findall(r"\w+", fold(phrase)) if t not in LAW_STOPWORDS and len(t) > 1]
+    term_set = set(terms)
     expanded = list(terms)
     for key, syns in LAW_SYNONYMS.items():
         key_f = fold(key)
-        hit = key_f in folded if " " in key_f else key_f in terms
+        if " " in key_f:
+            hit = key_f in folded or all(t in term_set for t in key_f.split())
+        else:
+            hit = key_f in term_set
         if hit:
             for s in syns:
                 expanded += [t for t in re.findall(r"\w+", fold(s)) if len(t) > 1]
@@ -71,14 +258,14 @@ def law_match_expression(q, extra=()):
 
 # Transitorios and reglamentos repeat wording from the ruling article; favor the law article.
 LAW_KIND_PRIOR = {"transitorio": 0.6, "anexo": 0.8}
-LAW_RANK_PRIOR = {"decreto": 0.85}
+LAW_RANK_PRIOR = {"decreto": 0.85, "resolucion-general": 0.68, "secondary": 0.75}
 
 
 # Column weights for bm25(): title, section heading, section keywords,
 # document keywords, body text.
 W_TITLE, W_SECTION, W_SECTION_KW, W_DOC_KW, W_TEXT = 1.0, 2.0, 4.0, 0.5, 1.0
 # For law units: norm title, Título/Capítulo path, epígrafe, article text, reform notes.
-W_LAW_TITLE, W_LAW_PATH, W_LAW_HEADING, W_LAW_TEXT, W_LAW_NOTES = 0.5, 1.0, 2.0, 1.0, 0.2
+W_LAW_TITLE, W_LAW_PATH, W_LAW_HEADING, W_LAW_TEXT, W_LAW_NOTES = 0.9, 1.0, 2.0, 1.0, 0.2
 
 
 def unit_lookup_id(norm, article):
@@ -193,6 +380,8 @@ class KnowledgeBase:
         if not expr or not self.units:
             return []
 
+        jurisdictions = detect_jurisdictions(query)
+
         def allowed(u):
             if area and u.area != area:
                 return False
@@ -209,12 +398,17 @@ class KnowledgeBase:
             sql += " AND norm_id = ?"
             args.append(norm)
         sql += " ORDER BY score LIMIT ?"
-        args.append(int(k) * 10)
+        # Wider pool when re-ranking by jurisdiction so foreign BM25 hits do not crowd out locals.
+        args.append(int(k) * (40 if jurisdictions else 10))
         candidates = []
         for unit_id, score in self.db.execute(sql, args):
             u = self.units[unit_id]
+            nmeta = self.norms.get(u.norm_id) or {"id": u.norm_id, "title": u.norm_title}
             rel = -score
             prior = LAW_KIND_PRIOR.get(u.kind, 1.0) * LAW_RANK_PRIOR.get(u.rank, 1.0)
+            prior *= jurisdiction_factor(jurisdictions, nmeta)
+            prior *= norm_title_factor(query, nmeta)
+            prior *= definition_factor(query, u)
             candidates.append((rel * prior, u))
         candidates.sort(key=lambda row: row[0], reverse=True)
 
@@ -227,9 +421,13 @@ class KnowledgeBase:
         for score, c in concepts:
             for uid in c["anchors"] if score == top else c["anchors"][:1]:
                 u = self.units.get(uid)
-                if u and uid not in seen and allowed(u):
-                    seen.add(uid)
-                    hits.append({**u.__dict__, "score": best, "why": c["label"]})
+                if not u or uid in seen or not allowed(u):
+                    continue
+                nmeta = self.norms.get(u.norm_id) or {"id": u.norm_id, "title": u.norm_title}
+                if jurisdictions and norm_jurisdiction(nmeta) not in jurisdictions:
+                    continue
+                seen.add(uid)
+                hits.append({**u.__dict__, "score": best, "why": c["label"]})
         for adj, u in candidates:
             if u.id in seen or not allowed(u):
                 continue

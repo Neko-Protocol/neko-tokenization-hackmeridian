@@ -90,19 +90,22 @@ Run on 26 October 2026 against the branches of this change.
 
 | Check                                                                        | Result                                                                                                                                 |
 | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Backend Launchpad tests (`npx jest src/domains/launchpad`)                   | 7 suites, 121 tests passing                                                                                                            |
+| Backend full suite (`npx jest`, neko-backend-hackmeridian)                   | 55 suites, 568 tests passing                                                                                                           |
+| Backend Launchpad tests (`npx jest src/domains/launchpad`)                   | 8 suites, 143 tests passing                                                                                                            |
+| Launchpad assistant behaviour eval (`src/domains/launchpad/assistant/eval/`) | 20 scenarios (mixed Spanish and English): tool trace, Legal KB unavailable notice, no other issuer data to the model, injected instructions treated as data, citation checker fails on fabricated refs. Scripted model tests backend behaviour, not answer quality; live model run is next |
+| Investor web lint and build (neko-web-hackmeridian)                          | `npx eslint .`: 0 errors, 74 warnings; `npm run build` passes after a clean `npm ci`                                                 |
 | Tokenization lint (`npm run lint`)                                           | passing (Launchpad and admin)                                                                                                          |
 | Tokenization typecheck (`turbo run typecheck`)                               | passing (5 packages)                                                                                                                   |
-| Legal KB unit tests                                                          | 43 passing, 1 skipped                                                                                                                  |
-| Legal KB retrieval eval ([eval/README](../services/legal-kb/eval/README.md)) | Law articles: 6/20 top-1, 9/20 top-3, 14/20 top-5. Guides: 4/4. Misses are listed, not hidden                                          |
-| Contracts (`npm run contracts:test`, builds WASM first)                      | 90 passing in an external review run on 26 October 2026 after building the WASM; not rerun here (this change touches no contract code) |
+| Legal KB unit tests                                                          | 50 passing                                                                                                                             |
+| Legal KB retrieval eval ([eval/README](../services/legal-kb/eval/README.md)) | After jurisdiction-aware ranking: `laws.json` 11/20 top-1, 16/20 top-3, 18/20 top-5 (first run 6/20, 9/20, 14/20). Held-out `laws-holdout.json` (12 questions, written before ranking change): 5/12, 7/12, 8/12 after (5/12, 7/12, 7/12 before). Guides: 4/4. Misses listed in eval README. Eval fails if a declared dataset is missing |
+| Contracts (`npm run contracts:test`, builds WASM first)                      | 91 passing, 0 failing (rerun 26 October 2026)                                                                                          |
 
-Older test debt in the forks, not introduced at the event: in the backend, suites for CORS text, mailing, vault APY (Blend types) and pool rates fail or do not load, and the fork has no ESLint config; in the investor web app, lint reports errors in pre-event code. None of the repositories has a CI workflow yet.
+Older test debt in the forks, not introduced at the event: the backend full Jest suite now passes (CORS JSON object parsing, mailing spec resolves investor web migrations via `NEKO_WEB_MIGRATIONS_DIR` or sibling `web-app`, `neko-web-hackmeridian`, or `neko-mainnet` and skips those cases with a clear name when none is present, Jest transforms ESM-only Blend SDK dependencies). Remaining: no ESLint config in the backend fork; investor web lint has warnings only (0 errors); none of the three repositories has a CI workflow or root license yet (pending a decision).
 
 ## Limits we state up front
 
 - Testnet only, with test USDC and USDT0.
 - No compliance modules are registered yet: identity is enforced, holder counts and country rules are not ([contracts README](../contracts/README.md#known-limitations)).
 - The precedent search uses fixed weights over seven fields. It does not learn, predict approval or replace the reviewer, and the issuer's assistant sees anonymised cases only.
-- Retrieval quality of the legal KB is measured above and is not yet good enough for unfiltered cross-country questions.
+- Retrieval quality of the legal KB is measured above (`laws.json` improved after jurisdiction-aware ranking; held-out `laws-holdout.json` moved only slightly, so most of the gain came from tuning on the main set). It is still not good enough for unfiltered cross-country questions; remaining held-out misses are often ranking within the right law, not the wrong norm.
 - The assistant gives orientation, not legal advice; Neko's legal team decides.
