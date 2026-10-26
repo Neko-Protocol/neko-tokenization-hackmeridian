@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { FIELD_BY_KEY, type FieldKey } from "../../utils/fields";
 import { describeValue } from "../../utils/validation";
 import { isUploadedDocument } from "../ui/DocumentsField";
+import { SkipReview } from "../ui/SkipReview";
 import {
   AssetIcon,
   assetTypeLabel,
@@ -71,7 +72,10 @@ export function AssetDetail({ app, onBack }: { app: Application; onBack: () => v
               {assetTypeLabel(app.asset_type)} · Submitted {formatDate(app.created_at)}
             </p>
           </div>
-          <StatusPill status={assetStage(app)} />
+          <div className="flex items-center gap-4">
+            <SkipReview app={app} className="items-end" />
+            <StatusPill status={assetStage(app)} />
+          </div>
         </div>
         <div className={cn(surface, "p-5")}>
           <StatusTrack status={assetStage(app)} />

@@ -36,3 +36,17 @@ export function useCreateApplication() {
       queryClient.invalidateQueries({ queryKey: applicationKeys.all }),
   });
 }
+
+export function useSkipReview() {
+  const { getAccessToken } = usePrivy();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = await getAccessToken();
+      if (!token) throw new Error("No Privy access token");
+      return launchpadApi.skipReview(token, id);
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: applicationKeys.all }),
+  });
+}
