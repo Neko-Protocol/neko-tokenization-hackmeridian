@@ -1,0 +1,15 @@
+.env
+.env.*
+**/.env
+**/.env.*
+**/.claim-signing-key-*
+**/node_modules
+**/.next
+**/target
+.git
+
+.turbo
+**/.turbo
+coverage
+**/coverage
+**/*.log
