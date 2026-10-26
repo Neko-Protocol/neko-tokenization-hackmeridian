@@ -1,9 +1,10 @@
 # Repository-level discovery guidance for Neko Tokenization.
-# Start with llms.txt for project context and the three-repository reading map.
+# Start with llms.txt for project context, the three-repository reading map,
+# the contracts integration guide and the testnet deployment record.
 # GitHub controls the effective robots.txt on github.com and raw.githubusercontent.com.
 # This file does not override their policies or get served by either Next.js app.
-# The sitemap below indexes public source documents on this repo's main branch.
-# It becomes available there after the files are published to main.
+# The sitemap below indexes public source documents on this repo's main branch:
+# docs, contract and script guides, bindings, the legal KB and session logs.
 # For a deployed app, serve a separate robots.txt at that app's origin root,
 # with its own sitemap URL and rules for its actual routes.
 # Crawl rules are advisory and do not provide authentication or access control.

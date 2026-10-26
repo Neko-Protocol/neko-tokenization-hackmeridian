@@ -1,25 +1,45 @@
 # Neko Tokenization: HackMeridian
 
-> Evaluation entry point for Neko's HackMeridian 2026 tokenization project on Stellar. This repository contains the issuer Launchpad, tokenization admin, Soroban RWA contracts, and legal knowledge base. The backend and investor app live in separate repositories.
+> Evaluation entry point for Neko's HackMeridian 2026 tokenization project on Stellar. This repository contains the issuer Launchpad, the tokenization admin, Soroban RWA contracts (SEP-57 token suite plus Neko's factory, vault and milestone tracker), typed contract bindings, and the legal knowledge base. The backend and investor app (Neko Pro) live in separate repositories.
 
-Neko's idea is to solve both issuance and distribution: help businesses tokenize real-world assets, then connect their offerings to eligible investors through Neko. Launchpad is the issuer experience; Neko (opportunities) is the verified-investor tier and experience. The README describes the existing Neko investing app as live on Stellar mainnet, with investments from $5. That is background about the existing product, not evidence that this hackathon tokenization flow is live on mainnet. The hackathon demo targets testnet.
+Neko's idea is to solve both issuance and distribution: help businesses tokenize real-world assets, then connect their offerings to eligible investors through Neko. Launchpad is the issuer experience; Neko Pro is the verified-investor tier and experience. The README describes the existing Neko investing app as live on Stellar mainnet, with investments from $5. That is background about the existing product, not evidence that this hackathon tokenization flow is live on mainnet. Every hackathon contract and vault is on testnet.
 
 This file is a navigation aid, not evidence that a feature is complete. When evaluating a checkout, read its local files first. GitHub links below use main for discovery and may differ from the branch being reviewed. For reproducible findings, record the commit of each repository and cite source paths and symbols at that revision. Uncommitted files describe local work only.
 
 ## Start here
 
 - [README](README.md): Product purpose, repository ownership, setup, and Stellar tooling. Read first.
+- [Contracts integration](docs/contracts-integration.md): How the Launchpad, admin, backend and Neko Pro use the deployed testnet contracts: who signs each call, how application fields map to vault terms and tranches, the backend endpoints, the Neko Pro changes, and a nine-step end-to-end check on testnet. Its status note says the integration is built across all three repositories.
+- [Review memory implementation](docs/review-memory.md): One cross-repository contribution: proposal review, deterministic similarity search, real stored human decisions, source links pinned to commits, 45 new passing tests and explicit validation limits.
 - [Implementation plan](docs/plan.md): Intended demo journey, workstreams, and event scope. Planned work is not a completion report.
 - [Product diagrams](docs/diagrams.md): Intended issuer, investor, and admin flows; verify each step against code.
+- [Deploy guide](docs/deploy.md): Hosting for the five demo services: backend on Railway, Launchpad, admin and Neko Pro on Vercel, Neko Legal KB on Google Cloud Run.
 - [Business roadmap](ROADMAP.md): Aspirations for three to six months after the event, not shipped functionality.
+- [Session logs](sessions/session-04.md): One log per work session (01 to 04) with times, decisions, PRs and AI use.
 - [Repository source sitemap](sitemap.xml): Curated raw-file URLs for this repo's main branch; not an inventory of deployed application pages.
+
+## Contracts and on-chain record
+
+- [Contracts README](contracts/README.md): The SEP-57 RWA stack from OpenZeppelin stellar-contracts, plus Neko's factory, vault and milestone tracker. Contract tests run with `npm run contracts:test`.
+- [Deploy scripts](contracts/scripts/README.md): deploy-shared, onboard-investor, onboard-wallet, deploy-vault, run-demo, issue-asset, fund-asset, print-env and gen-bindings. They read and write deployments/<network>.json.
+- [Testnet deployment record](deployments/testnet.json): Contract IDs for the factory, milestone tracker, identity registry and verifier, claim issuer, the platform test USDC, a test USDT0, and two script-launched vaults (casa-circle in Circle's testnet USDC, torre-cartago in USDT0). Check any ID on stellar.expert (testnet) before citing it as live state.
+- [Contract bindings](packages/bindings/README.md): Typed TypeScript clients for vault, factory, milestone-tracker and token, generated from the built wasm.
+- packages/stellar: Shared network config, deployment record loader, contract reads and transactions (contracts.ts, tx.ts), USDC amount helpers (amounts.ts) and the vault-terms arithmetic the backend must match (terms.ts).
 
 ## Repository boundaries and integration
 
-- [Tokenization repository](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian): This Turborepo monorepo. Next.js App Router apps in apps/platform and apps/admin, shared TypeScript package in packages/stellar, Rust contracts in contracts, Python service (for RAG in AI-assisted tokenization proposal) in services/legal-kb. This repository was created during the event.
-- [Backend repository](https://github.com/Neko-Protocol/neko-backend-hackmeridian): Shared NestJS backend. Start at src/app.module.ts, src/domains/launchpad, src/core/didit, and src/domains/platform/admin-auth. Launchpad verification/account services connect Didit, Privy embedded Stellar wallets, and Supabase. 
-- [Investor web repository](https://github.com/Neko-Protocol/neko-web-hackmeridian): Next.js investor app, including existing Neko functionality. Start at src/app, src/features, and supabase/migrations.
+- [Tokenization repository](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian): This Turborepo monorepo. Next.js App Router apps in apps/platform (Launchpad, including the launch page and vault panel in src/features/launch and src/features/vault) and apps/admin, shared TypeScript in packages/stellar and packages/bindings, Rust contracts in contracts, and a Python MCP service (legal RAG for the AI-assisted proposal form and admin checklist) in services/legal-kb. This repository was created during the event.
+- [Backend repository](https://github.com/Neko-Protocol/neko-backend-hackmeridian): Shared NestJS backend. Start at src/app.module.ts, src/domains/launchpad (including chain/ for factory deployments, vault operations and investor identities), src/core/didit, and src/domains/platform/admin-auth. Launchpad services connect Didit, Privy embedded Stellar wallets, Supabase and the testnet contracts.
+- [Investor web repository](https://github.com/Neko-Protocol/neko-web-hackmeridian): Next.js investor app, including existing Neko functionality. Start at src/app, src/features (Neko Pro in src/features/shared/pro), and supabase/migrations.
 
 The backend and investor web repos are forks of pre-existing Neko code. Their pre-hackmeridian tag marks the event baseline according to README.md and sessions/session-02.md. Evaluate the diff from that tag to the reviewed commit in each fork. Do not count the whole fork as hackathon work.
 
-The intended journey is: issuer verification, application preparation, human legal/compliance review, token issuance, investor discovery and verification, investment and milestone payments. It spans all three repos.
+The intended journey is: issuer verification (KYB/KYC), AI-assisted application with a minimum raise and repayment schedule, human legal/compliance review, launch (the backend deploys token, compliance and vault through the factory), investor verification and on-chain identity, investment, release of the raise, milestone evidence, repayment of each tranche and redemption. It spans all three repos.
+
+## How the review contribution fits
+
+The issuer's AI assistant helps prepare structured proposal data. The existing admin checklist evaluates fixed rules and retrieves cited legal articles. The Similar cases contribution retrieves comparable earlier proposals from Supabase and shows their human decisions, notes and match reasons in that same review screen. The administrator decides and saves the current review; its latest eligible outcome can become a candidate for a future search.
+
+These are distinct responsibilities. Case memory does not retrain a model, turn reviewer notes into legal authority, automatically approve an offering, issue a token or enforce restrictions on-chain. “Learns from every decision” refers to newly stored decisions becoming searchable with fixed weights. On-chain transfer restrictions come from the SEP-57 compliance and identity contracts, not from review memory.
+
+The [implementation guide](docs/review-memory.md) connects claims to code and tests at backend commit 3a02d19ab4e4d8c025c80679ae695cee5534ebba and admin commit de9c26c2f01856ed93813244696d41c4a35464a5. Local builds and tests establish implementation behavior; browser checks used intercepted responses, and live deployment integration and measurable business benefits remain unverified.
