@@ -67,13 +67,20 @@ def llms_txt(kb):
 
 
 def run_eval(kb, k=3):
-    """Document-level (eval/questions.json) and section-level (eval/sections.json) hit rates.
+    """Top-k hit rates on versioned question sets: guides by document (eval/questions.json)
+    and section (eval/sections.json), and verbatim law articles (eval/laws.json, through
+    search_law, the tool the Launchpad assistant uses first).
 
     Skips gracefully when eval files are not present."""
     eval_dir = REPO_ROOT / "eval"
     total_hits = total = 0
     ran = False
-    for name, key in (("questions.json", "doc_id"), ("sections.json", "chunk_id")):
+    sets = (
+        ("questions.json", "doc_id", kb.search),
+        ("sections.json", "chunk_id", kb.search),
+        ("laws.json", "id", kb.search_law),
+    )
+    for name, key, search in sets:
         path = eval_dir / name
         if not path.exists():
             print(f"{name}: skipped (missing {path})")
@@ -82,7 +89,7 @@ def run_eval(kb, k=3):
         qs = json.loads(path.read_text(encoding="utf-8"))
         hits = 0
         for item in qs:
-            got = [h[key] for h in kb.search(item["q"], k)]
+            got = [h[key] for h in search(item["q"], k)]
             ok = item["expect"] in got
             hits += ok
             if not ok:

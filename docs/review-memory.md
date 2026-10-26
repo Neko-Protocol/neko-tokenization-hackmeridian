@@ -6,27 +6,27 @@ This closes a specific gap in the product. A checklist can identify a condition 
 
 ## Delivery status and source of truth
 
-As checked on 26 October 2026, both implementation PRs are open and unmerged:
+Both implementation PRs are merged into `main`. The commits below are the snapshots the evidence in this guide was produced from:
 
 | Component                 | Implementation snapshot                                                                                                                          | Delivery                                                                                |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
 | NestJS search and scoring | Backend commit [`3a02d19`](https://github.com/Neko-Protocol/neko-backend-hackmeridian/commit/3a02d19ab4e4d8c025c80679ae695cee5534ebba)           | [Backend PR #5](https://github.com/Neko-Protocol/neko-backend-hackmeridian/pull/5)      |
 | Next.js admin integration | Tokenization commit [`de9c26c`](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian/commit/de9c26c2f01856ed93813244696d41c4a35464a5) | [Admin PR #16](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian/pull/16) |
 
-The behavior below is implemented in those snapshots and validated locally. A merged release or a successful run against deployed services is a separate milestone; neither is established by these PRs or by this document. The backend endpoint must be available before releasing its admin consumer.
+The behavior below is implemented in those snapshots and validated locally. Whether a given deployment runs that code is a separate question: check the commit each service was built from. Since then the same search was extracted into `PrecedentsService` in the backend, which also serves an anonymised view to the issuer's assistant (see below).
 
 ## How this fits the complete Neko solution
 
 Neko connects two sides: businesses preparing an asset offering through Launchpad, and eligible investors discovering opportunities through the investor app. The review step sits between proposal preparation and the intended issuance/distribution flow. Review memory strengthens this step without claiming to complete the later stages.
 
-| Layer                       | Responsibility                                                                                    | Relationship to this change                                                                                  |
-| --------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Issuer application          | Collect structured asset, offering and investor details; support preparation with an AI assistant | Supplies the fields compared by the search. Calling review memory from the issuer assistant is future work.  |
-| Legal knowledge base        | Retrieve stored legal articles and cited obligation documents                                     | Supplies legal context to the existing review experience. Case search does not treat reviewer notes as law.  |
-| Compliance checklist        | Evaluate explicit rules against the current proposal and display cited articles                   | Continues to run separately, with its existing rules unchanged.                                              |
-| Review memory               | Retrieve earlier decided proposals and explain the field matches                                  | Added by these two PRs.                                                                                      |
-| Human review                | Approve, reject or request changes and record a note                                              | Remains the decision authority. Its saved result becomes available to future searches.                       |
-| Tokenization and investment | Contract issuance, eligibility controls, distribution and investment                              | Separate product stages. The case search does not issue tokens, move funds or enforce contract restrictions. |
+| Layer                       | Responsibility                                                                                    | Relationship to this change                                                                                                                                                                 |
+| --------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Issuer application          | Collect structured asset, offering and investor details; support preparation with an AI assistant | Supplies the fields compared by the search. The issuer assistant now calls the same search through `find_precedents`, with an anonymised view and only the fields the issuer has filled in. |
+| Legal knowledge base        | Retrieve stored legal articles and cited obligation documents                                     | Supplies legal context to the existing review experience. Case search does not treat reviewer notes as law.                                                                                 |
+| Compliance checklist        | Evaluate explicit rules against the current proposal and display cited articles                   | Continues to run separately, with its existing rules unchanged.                                                                                                                             |
+| Review memory               | Retrieve earlier decided proposals and explain the field matches                                  | Added by these two PRs.                                                                                                                                                                     |
+| Human review                | Approve, reject or request changes and record a note                                              | Remains the decision authority. Its saved result becomes available to future searches.                                                                                                      |
+| Tokenization and investment | Contract issuance, eligibility controls, distribution and investment                              | Separate product stages. The case search does not issue tokens, move funds or enforce contract restrictions.                                                                                |
 
 The [product diagrams](diagrams.md), [contract documentation](../contracts/README.md) and [Legal KB documentation](../services/legal-kb/README.md) describe the surrounding work and its own limitations. In particular, displaying a legal check or prior decision does not establish that an equivalent restriction is enforced on-chain.
 
@@ -139,7 +139,7 @@ npm run build -- --filter=@neko-tokenization/admin
 - Candidate scanning is appropriate to this version's simple design. Larger datasets need performance measurement and potentially database-side candidate selection.
 - Current application rows supply the latest decision. Full revision history, immutable decision events and retention guarantees require additional design.
 - Reviewer notes are historical context, not verified legal authority. Past approvals do not establish compliance for a new proposal.
-- The issuer AI assistant does not call this search yet. This change also does not add autonomous decisions, contract restrictions or an on-chain review record.
+- The issuer AI assistant calls this search through `find_precedents` with an anonymised view (no names, IDs, reviewer notes, documents or exact amounts of other issuers). This change does not add autonomous decisions, contract restrictions or an on-chain review record.
 - A deployed acceptance run still needs an authorized admin session and real review records to verify the complete browser → proxy → backend → Supabase path.
 - Faster reviews and more consistent decisions are intended product benefits. No measured time savings, decision-quality benchmark, user-adoption results or accuracy percentage were established in this work.
 

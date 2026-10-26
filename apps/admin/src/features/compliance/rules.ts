@@ -208,7 +208,7 @@ export function evaluateCompliance(
     status: milestonesOk ? "pass" : "warn",
     detail: milestonesOk
       ? "Milestone amount_pct values sum to 100%."
-      : "Milestones are missing or amount_pct does not sum to 100%. Trustless Work escrow releases by milestone.",
+      : "Milestones are missing or amount_pct does not sum to 100%. The vault schedules the issuer's repayments by these tranches.",
     citations: [],
   });
 
