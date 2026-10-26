@@ -126,3 +126,7 @@ For testnet deployment of the RWA contracts, follow [contracts/rwa/DEPLOY.md](co
 ## Team
 
 Santiago Villarreal, Kevin Latino, Fabián Sánchez, Matías Aguilar. Oppia Software Labs.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
