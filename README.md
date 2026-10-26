@@ -44,9 +44,19 @@ docs/              Plans and diagrams
 sessions/          Hackathon work session logs
 ```
 
+## Launchpad
+
+`apps/platform` is where issuers work:
+
+- They pass KYB and apply with an AI-assisted form. The form includes the minimum raise and a dated repayment schedule.
+- Once Neko approves, they choose a token symbol and a funding deadline and **launch**: their Privy wallet opens a USDC trustline, and the backend deploys the token, compliance contract and vault through the factory.
+- After launch, they follow the vault on-chain, submit milestone evidence and repay each tranche from the same wallet.
+
+How every form field maps to a contract argument, and what the backend and Neko Pro implement, is in [docs/contracts-integration.md](docs/contracts-integration.md).
+
 ## Tokenization admin
 
-`apps/admin` is where Neko reviews tokenization applications: a list by status, the asset and issuer details (KYB status, testnet wallet), approve, reject or request changes with a note, and a compliance checklist. The checklist is rule based (Costa Rica public offering test, SUGEVAL private offer accreditation, investor consent, SUGEF registration for virtual asset service providers, personal data, US investors, Mexico, Colombia and Argentina) and shows the real text of every article it cites, pulled from Neko Legal KB.
+`apps/admin` is where Neko reviews tokenization applications: a list by status, the asset and issuer details (KYB status, testnet wallet), the exact vault terms (total repayment and every tranche in USDC), approve, reject or request changes with a note, and a compliance checklist. Once the issuer launches, the same page runs the vault: close funding, release the raise to the issuer, and approve or turn back milestone evidence. The checklist is rule based (Costa Rica public offering test, SUGEVAL private offer accreditation, investor consent, SUGEF registration for virtual asset service providers, personal data, US investors, Mexico, Colombia and Argentina) and shows the real text of every article it cites, pulled from Neko Legal KB.
 
 The **Similar cases** addition connects this review to earlier decisions stored in Supabase. It ranks comparable decided proposals, shows their outcomes and reviewer notes, and explains each field match. A saved eligible decision can become a candidate for a later review without retraining a model. The administrator still decides; historical outcomes do not determine approval or establish legal compliance. The paired [backend PR #5](https://github.com/Neko-Protocol/neko-backend-hackmeridian/pull/5) and [admin PR #16](https://github.com/Neko-Protocol/neko-tokenization-hackmeridian/pull/16) were open and unmerged when checked on 26 October 2026. See [review memory](docs/review-memory.md) for implementation evidence and validation boundaries.
 
