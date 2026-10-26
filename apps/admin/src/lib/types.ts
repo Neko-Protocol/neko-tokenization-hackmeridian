@@ -82,6 +82,33 @@ export interface AdminApplicationView extends ApplicationView {
   };
 }
 
+export type DecidedApplicationStatus = Extract<
+  ApplicationStatus,
+  "approved" | "rejected" | "changes_requested"
+>;
+
+export interface SimilarApplicationCase extends Pick<
+  ApplicationView,
+  | "id"
+  | "asset_name"
+  | "asset_type"
+  | "issuer_country"
+  | "offering_type"
+  | "target_amount"
+  | "currency"
+  | "review_note"
+  | "reviewed_at"
+> {
+  status: DecidedApplicationStatus;
+  score: number;
+  matched: string[];
+}
+
+export interface SimilarApplicationsResponse {
+  summary: Record<DecidedApplicationStatus, number>;
+  cases: SimilarApplicationCase[];
+}
+
 export type ComplianceStatus = "pass" | "warn" | "fail" | "info";
 
 export interface ComplianceCitation {

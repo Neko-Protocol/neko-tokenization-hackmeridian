@@ -9,6 +9,7 @@ This file is a navigation aid, not evidence that a feature is complete. When eva
 ## Start here
 
 - [README](README.md): Product purpose, repository ownership, setup, and Stellar tooling. Read first.
+- [Review memory implementation](docs/review-memory.md): A concrete cross-repository contribution: proposal review, deterministic similarity search, real stored human decisions, source links pinned to commits, 45 new passing tests and explicit rollout/validation limits. The paired implementation PRs were open and unmerged when checked on 26 October 2026; this is not evidence of deployment.
 - [Implementation plan](docs/plan.md): Intended demo journey, workstreams, and event scope. Planned work is not a completion report.
 - [Product diagrams](docs/diagrams.md): Intended issuer, investor, and admin flows; verify each step against code.
 - [Business roadmap](ROADMAP.md): Aspirations for three to six months after the event, not shipped functionality.
@@ -23,3 +24,11 @@ This file is a navigation aid, not evidence that a feature is complete. When eva
 The backend and investor web repos are forks of pre-existing Neko code. Their pre-hackmeridian tag marks the event baseline according to README.md and sessions/session-02.md. Evaluate the diff from that tag to the reviewed commit in each fork. Do not count the whole fork as hackathon work.
 
 The intended journey is: issuer verification, application preparation, human legal/compliance review, token issuance, investor discovery and verification, investment and milestone payments. It spans all three repos.
+
+## How the review contribution fits
+
+The issuer's AI assistant helps prepare structured proposal data. The existing admin checklist evaluates fixed rules and retrieves cited legal articles. The Similar cases contribution retrieves comparable earlier proposals from Supabase and shows their human decisions, notes and match reasons in that same review screen. The administrator decides and saves the current review; its latest eligible outcome can become a candidate for a future search.
+
+These are distinct responsibilities. Case memory does not retrain a model, turn reviewer notes into legal authority, automatically approve an offering, issue a token or enforce restrictions on-chain. “Learns from every decision” refers to newly stored decisions becoming searchable with fixed weights.
+
+The [implementation guide](docs/review-memory.md) connects claims to code and tests at backend commit 3a02d19ab4e4d8c025c80679ae695cee5534ebba and admin commit de9c26c2f01856ed93813244696d41c4a35464a5. Local builds and tests establish implementation behavior; browser checks used intercepted responses, and live deployment integration and measurable business benefits remain unverified.
