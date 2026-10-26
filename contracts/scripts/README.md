@@ -11,6 +11,9 @@ Four scripts that take a fresh network to a working demo. They read and write
 ./run-demo.sh casa-escazu          # the whole money path, with explorer links
 ./print-env.sh                     # the addresses as environment variables
 ./gen-bindings.sh                  # the TypeScript clients the apps import
+
+./issue-asset.sh USDT0             # a test asset the platform controls
+./fund-asset.sh USDT0 alice 100000 # trustline plus a payout, for our own assets
 ```
 
 `NETWORK=testnet` by default. Every script needs `stellar`, `jq`, `openssl` and
@@ -71,6 +74,36 @@ normalises what the generator emits so a re-run reproduces what is committed.
 Run it whenever a contract's interface changes. Also available as
 `npm run contracts:bindings` from the repository root.
 
+## What a vault is denominated in
+
+A vault takes any SEP-41 token as its money, so `deploy-vault.sh` accepts the
+asset through the environment:
+
+```bash
+ASSET_SAC=<contract address> ASSET_CODE=USDT0 ASSET_ISSUER=<G…> \
+  ./deploy-vault.sh torre-sabana
+```
+
+Without those it falls back to the platform's test USDC. The asset is recorded
+with the vault, so `run-demo.sh` funds and reads the right one.
+
+**Test assets we issue.** `issue-asset.sh USDT0` creates an issuer, deploys the
+Stellar Asset Contract and gives the platform admin a trustline, so we can mint
+freely and the whole path runs. On mainnet the same vault points at the real
+asset — USDT0 is `USDT0:GATISXX6BZ6NC7IKQBY37CJD4SOZL3CYZJWXEDG6JVIY4WBS6KXJHN6Q`
+there — and nothing in the contracts changes, only the address they are given.
+
+**Real assets.** Circle's testnet USDC is
+`USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5`, SAC
+`CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA`. A vault can be
+denominated in it, but we do not hold the issuer key, so every account has to
+be funded from [Circle's faucet](https://faucet.circle.com) — 20 USDC per
+address every two hours. `run-demo.sh` checks the borrower's balance up front
+and stops with the address to fund rather than failing halfway.
+
+There is no canonical USDT0 on testnet: the ones in the asset list are
+unrelated test issuances. That is why we issue our own.
+
 ## Amounts
 
 The scripts talk in whole USDC and scale by the asset's seven decimals at the
@@ -111,6 +144,11 @@ The other three are meant to be run repeatedly, one vault name at a time.
 `run-demo.sh` drives a vault from `Funding` to `Settled` in one pass, so it has
 to start from a vault nobody has invested in yet; give `deploy-vault.sh` a new
 name to get one.
+
+A run that stops part-way still spent the investors' money into that vault, so
+top them up with `fund-asset.sh` before starting another one — otherwise the
+next `invest` fails with the asset contract's "resulting balance is not within
+the allowed range".
 
 Do not edit a script while it is running. Bash reads a script as it executes,
 so a change part-way through gets picked up mid-run.

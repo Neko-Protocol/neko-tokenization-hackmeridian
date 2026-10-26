@@ -25,10 +25,15 @@ BORROWER_ADDR=$(state ".vaults.\"$VAULT_NAME\".borrower")
 TARGET=$(state ".vaults.\"$VAULT_NAME\".target")
 EXPECTED=$(state ".vaults.\"$VAULT_NAME\".expected_repayment")
 TRACKER=$(state '.shared.milestone_tracker')
-USDC=$(state '.shared.usdc')
+USDC=$(state ".vaults[\"$VAULT_NAME\"].asset.sac")
+[ -n "$USDC" ] || USDC=$(state '.shared.usdc')
 MANAGER=$(state '.accounts.manager')
-USDC_CODE=$(state '.shared.usdc_code')
-USDC_ISSUER=$(state '.shared.usdc_issuer')
+ISSUER_KEY=$(state ".assets[\"$(state ".vaults[\"$VAULT_NAME\"].asset.code")\"].issuer_key")
+[ -n "$ISSUER_KEY" ] || ISSUER_KEY=neko-usdc-issuer
+USDC_CODE=$(state ".vaults[\"$VAULT_NAME\"].asset.code")
+USDC_ISSUER=$(state ".vaults[\"$VAULT_NAME\"].asset.issuer")
+[ -n "$USDC_CODE" ] || USDC_CODE=$(state '.shared.usdc_code')
+[ -n "$USDC_ISSUER" ] || USDC_ISSUER=$(state '.shared.usdc_issuer')
 [ -n "$VAULT" ] || die "unknown vault $VAULT_NAME — run deploy-vault.sh first"
 
 A_ADDR=$(state ".investors.\"$A\".address")
@@ -39,7 +44,7 @@ A_AMOUNT=$(( TARGET * 60 / 100 ))
 B_AMOUNT=$(( TARGET - A_AMOUNT ))
 
 # The RWA token names the argument `account`; the Stellar Asset Contract that
-# backs the test USDC names it `id`.
+# backs a classic asset names it `id`.
 tokens() { invoke --id "$TOKEN" --source-account neko-manager -- balance --account "$1"; }
 usdc() { invoke --id "$USDC" --source-account neko-manager -- balance --id "$1"; }
 
@@ -51,12 +56,12 @@ info "$B invested $B_AMOUNT and holds $(human "$(tokens "$B_ADDR")") tokens"
 
 note "2. A wallet without KYC is turned away"
 STRANGER=$(ensure_key "$VAULT_NAME-stranger")
-# Fund it properly first. Otherwise the call would fail for want of USDC and
+# Fund it properly first. Otherwise the call would fail for want of funds and
 # prove nothing about the identity check.
 stellar tx new change-trust --network "$NETWORK" --source-account "$VAULT_NAME-stranger" \
   --line "$USDC_CODE:$USDC_ISSUER" >/dev/null 2>&1 || true
-stellar tx new payment --network "$NETWORK" --source-account neko-usdc-issuer \
-  --destination "$STRANGER" --asset "$USDC_CODE:$USDC_ISSUER" --amount 100000000 >/dev/null
+stellar tx new payment --network "$NETWORK" --source-account "$ISSUER_KEY" \
+  --destination "$STRANGER" --asset "$USDC_CODE:$USDC_ISSUER" --amount "$(units 10)" >/dev/null
 info "funded with 10 $USDC_CODE, but never onboarded"
 
 if invoke --id "$VAULT" --source-account "$VAULT_NAME-stranger" \
@@ -81,10 +86,22 @@ invoke --id "$TRACKER" --source-account neko-manager \
 info "milestone 1 approved; $(invoke --id "$TRACKER" --source-account neko-manager -- approved_count --vault_id "$VAULT_ID") of 3 done"
 
 note "5. Repaying, tranche by tranche"
-# The interest is earned off-chain, so the borrower is topped up here.
-stellar tx new payment --network "$NETWORK" --source-account neko-usdc-issuer \
-  --destination "$BORROWER_ADDR" --asset "$USDC_CODE:$USDC_ISSUER" \
-  --amount "$(units "$(( EXPECTED - TARGET ))")" >/dev/null 2>&1 || true
+# The interest is earned off-chain, so the borrower has to hold it before it
+# can repay more than the raise. We can mint it only for the platform's own
+# test asset; for a real one the borrower has to be funded beforehand.
+INTEREST=$(( EXPECTED - TARGET ))
+if stellar keys address "$ISSUER_KEY" >/dev/null 2>&1 \
+   && [ "$(stellar keys address "$ISSUER_KEY")" = "$USDC_ISSUER" ]; then
+  stellar tx new payment --network "$NETWORK" --source-account "$ISSUER_KEY" \
+    --destination "$BORROWER_ADDR" --asset "$USDC_CODE:$USDC_ISSUER" \
+    --amount "$(units "$INTEREST")" >/dev/null 2>&1 || true
+  info "borrower topped up with $INTEREST $USDC_CODE of interest"
+else
+  HELD=$(human "$(usdc "$BORROWER_ADDR")")
+  info "borrower holds $HELD $USDC_CODE; it needs $INTEREST for the interest"
+  awk -v h="$HELD" -v n="$INTEREST" 'BEGIN { exit (h >= n) ? 0 : 1 }' \
+    || die "fund $BORROWER_ADDR with at least $INTEREST $USDC_CODE first — we do not control this issuer"
+fi
 
 for index in 0 1 2; do
   AMOUNT=$(invoke --id "$VAULT" --source-account neko-manager -- get_tranche --index "$index" | jq -r '.expected_amount')
@@ -98,7 +115,7 @@ for index in 0 1 2; do
   # roughly equal tranches that is after the second.
   if [ "$index" = "1" ]; then
     note "6. $B leaves early"
-    info "the vault holds $(human "$(usdc "$VAULT")") USDC; $B put in $B_AMOUNT"
+    info "the vault holds $(human "$(usdc "$VAULT")") $USDC_CODE; $B put in $B_AMOUNT"
     info "would collect $(human "$(invoke --id "$VAULT" --source-account neko-manager -- exit_value --investor "$B_ADDR")") after the fee"
     invoke --id "$VAULT" --source-account "$B" -- early_exit --investor "$B_ADDR" >/dev/null
     info "$B out, tokens burned; supply is now $(human "$(invoke --id "$TOKEN" --source-account neko-manager -- total_supply)")"
@@ -111,7 +128,7 @@ info "state $(invoke --id "$VAULT" --source-account neko-manager -- get_state)"
 note "7. $A collects"
 info "claimable $(human "$(invoke --id "$VAULT" --source-account neko-manager -- claimable --investor "$A_ADDR")")"
 invoke --id "$VAULT" --source-account "$A" -- redeem --investor "$A_ADDR" >/dev/null
-info "$A put in $A_AMOUNT and now holds $(human "$(usdc "$A_ADDR")") USDC"
+info "$A put in $A_AMOUNT and now holds $(human "$(usdc "$A_ADDR")") $USDC_CODE"
 info "tokens left outstanding: $(human "$(invoke --id "$TOKEN" --source-account neko-manager -- total_supply)")"
 
 note "Follow it on the explorer"

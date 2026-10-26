@@ -27,10 +27,21 @@ MAX_EXIT_FEE_BPS="${MAX_EXIT_FEE_BPS:-1000}"
 # The vault compares against a fixed total, so the rate is applied here, once.
 EXPECTED_REPAYMENT=$(( TARGET + TARGET * RATE_BPS / 10000 ))
 
+# The vault takes any SEP-41 token as its denomination, so a vault can be
+# raised in the platform's test asset or in a real one. Give ASSET_SAC the
+# contract address and ASSET_CODE:ASSET_ISSUER the classic asset behind it, so
+# the script can add the trustlines an account needs to receive it.
+#
+#   ASSET_SAC=CBIELTK6... ASSET_CODE=USDC \
+#   ASSET_ISSUER=GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5 \
+#   TARGET=20 MIN_TARGET=10 ./scripts/deploy-vault.sh my-vault
+
 FACTORY=$(state '.shared.factory')
 TRACKER=$(state '.shared.milestone_tracker')
 REGISTRY=$(state '.shared.identity_registry')
-USDC=$(state '.shared.usdc')
+USDC="${ASSET_SAC:-$(state '.shared.usdc')}"
+ASSET_CODE="${ASSET_CODE:-$(state '.shared.usdc_code')}"
+ASSET_ISSUER="${ASSET_ISSUER:-$(state '.shared.usdc_issuer')}"
 ADMIN=$(state '.accounts.admin')
 MANAGER=$(state '.accounts.manager')
 
@@ -38,10 +49,8 @@ note "Borrower"
 BORROWER=$(ensure_key "$VAULT_NAME-borrower")
 # A classic asset needs a trustline before the account can receive it, and the
 # borrower receives the whole raise.
-USDC_CODE=$(state '.shared.usdc_code')
-USDC_ISSUER=$(state '.shared.usdc_issuer')
 stellar tx new change-trust --network "$NETWORK" --source-account "$VAULT_NAME-borrower" \
-  --line "$USDC_CODE:$USDC_ISSUER" >/dev/null 2>&1 || true
+  --line "$ASSET_CODE:$ASSET_ISSUER" >/dev/null 2>&1 || true
 info "$BORROWER"
 
 # A deterministic 32-byte id, so the vault's three contract addresses can be
@@ -50,7 +59,8 @@ VAULT_ID=$(printf '%s' "$VAULT_NAME" | shasum -a 256 | cut -c1-64)
 info "vault id $VAULT_ID"
 
 note "Vault"
-info "raising $TARGET USDC at ${RATE_BPS} bps; repays $EXPECTED_REPAYMENT"
+info "raising $TARGET $ASSET_CODE at ${RATE_BPS} bps; repays $EXPECTED_REPAYMENT"
+info "denominated in $ASSET_CODE:${ASSET_ISSUER:0:8}… ($USDC)"
 info "minimum $MIN_TARGET; exit fee ${EXIT_FEE_BPS} bps, capped at ${MAX_EXIT_FEE_BPS}"
 
 # A year from now, so the demo never trips over the funding deadline.
@@ -113,8 +123,10 @@ info "3 milestones opened, all pending"
 save "$(jq -n --arg n "$VAULT_NAME" --arg id "$VAULT_ID" --arg t "$TOKEN" \
   --arg c "$COMPLIANCE" --arg v "$VAULT" --arg b "$BORROWER" \
   --argjson target "$TARGET" --argjson repay "$EXPECTED_REPAYMENT" \
+  --arg code "$ASSET_CODE" --arg issuer "$ASSET_ISSUER" --arg sac "$USDC" \
   '{vaults: {($n): {vault_id: $id, token: $t, compliance: $c, vault: $v,
-                   borrower: $b, target: $target, expected_repayment: $repay}}}')"
+                    borrower: $b, target: $target, expected_repayment: $repay,
+                    asset: {code: $code, issuer: $issuer, sac: $sac}}}}')"
 
 note "Done"
 EXPLORER="https://stellar.expert/explorer/$NETWORK/contract"
