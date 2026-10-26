@@ -154,3 +154,42 @@ export function decideApplication(
     }
   );
 }
+
+export interface ChainActionResult {
+  tx_hash: string;
+}
+
+function vaultPath(id: string, action: string): string {
+  return `/v1/launchpad/admin/applications/${encodeURIComponent(id)}/vault/${action}`;
+}
+
+/** Close the round: `Funded` at or above the minimum raise, `Failed` below it. */
+export function closeFunding(token: string, id: string): Promise<ChainActionResult> {
+  return request<ChainActionResult>(vaultPath(id, "close-funding"), {
+    method: "POST",
+    token,
+  });
+}
+
+/** Send the raise to the issuer's wallet and start the repayment period. */
+export function releaseFunds(token: string, id: string): Promise<ChainActionResult> {
+  return request<ChainActionResult>(vaultPath(id, "release"), {
+    method: "POST",
+    token,
+  });
+}
+
+/** Accept or turn back the evidence an issuer submitted for a milestone. */
+export function reviewMilestone(
+  token: string,
+  id: string,
+  index: number,
+  approved: boolean,
+  note: string
+): Promise<ChainActionResult> {
+  return request<ChainActionResult>(vaultPath(id, `milestones/${index}/review`), {
+    method: "POST",
+    token,
+    body: { approved, note },
+  });
+}

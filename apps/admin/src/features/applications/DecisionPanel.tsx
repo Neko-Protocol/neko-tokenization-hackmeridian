@@ -72,6 +72,7 @@ export function DecisionPanel({
   const noteRef = useRef<HTMLTextAreaElement>(null);
 
   const isFinal = FINAL.has(application.status);
+  const launchBlocker = launchReadiness(application);
 
   const runDecision = async (decision: Decision) => {
     if (!accessToken) return;
@@ -164,12 +165,17 @@ export function DecisionPanel({
         />
 
         {error && <Notice tone="error">{error}</Notice>}
+        {launchBlocker && (
+          <Notice tone="error">
+            {launchBlocker} Request changes instead: a vault can&apos;t be launched from it.
+          </Notice>
+        )}
 
         <Button
           variant="success"
           className="w-full"
           loading={loading === "approved"}
-          disabled={loading !== null}
+          disabled={loading !== null || launchBlocker !== null}
           onClick={() => ask("approved")}
         >
           <Check className="h-4 w-4" />
@@ -217,4 +223,20 @@ export function DecisionPanel({
       )}
     </SectionCard>
   );
+}
+
+/**
+ * Approval lets the issuer launch a vault straight away, so it needs every
+ * term the vault's constructor takes. Older applications were sent without a
+ * minimum raise or a repayment schedule.
+ */
+function launchReadiness(app: AdminApplicationView): string | null {
+  if (app.min_target == null) return "This application has no minimum raise.";
+  if (app.expected_yield_pct == null || app.term_months == null)
+    return "This application has no yield or term.";
+  if (app.milestones.length === 0) return "This application has no repayment schedule.";
+  const total = app.milestones.reduce((sum, m) => sum + Number(m.amount_pct), 0);
+  if (Math.abs(total - 100) > 0.001) return "The repayment schedule doesn't add up to 100%.";
+  if (app.milestones.some((m) => !m.due)) return "A repayment has no due date.";
+  return null;
 }
