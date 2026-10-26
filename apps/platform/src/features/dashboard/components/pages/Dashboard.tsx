@@ -36,7 +36,11 @@ export function Dashboard() {
       label: "In review",
       value: String(apps.filter((a) => ["submitted", "in_review", "changes_requested"].includes(a.status)).length),
     },
-    { label: "Approved", value: String(apps.filter((a) => a.status === "approved").length) },
+    {
+      label: "Ready to launch",
+      value: String(apps.filter((a) => a.status === "approved" && a.deployment?.status !== "live").length),
+    },
+    { label: "Live", value: String(apps.filter((a) => a.deployment?.status === "live").length) },
   ];
 
   return (
@@ -60,7 +64,7 @@ export function Dashboard() {
         <Notice tone="error">We couldn&apos;t load your assets. Try again shortly.</Notice>
       ) : (
         <>
-          <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <dl className="grid grid-cols-2 gap-3 lg:grid-cols-5">
             {stats.map((s) => (
               <div key={s.label} className={cn(surface, "flex flex-col gap-1.5 p-5")}>
                 <dt className="text-[13.5px] text-white/45">{s.label}</dt>

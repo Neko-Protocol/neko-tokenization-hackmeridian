@@ -1,9 +1,32 @@
-import { Check, Clock, FileCheck2, FileX2, MessageSquareWarning, Search } from "lucide-react";
-import type { ApplicationStatus } from "@/lib/services/launchpad.api";
+import {
+  AlertTriangle,
+  Check,
+  Clock,
+  FileCheck2,
+  FileX2,
+  Loader2,
+  MessageSquareWarning,
+  Rocket,
+  Search,
+} from "lucide-react";
+import type { Application, ApplicationStatus } from "@/lib/services/launchpad.api";
 import { cn } from "@/lib/utils";
 
+/**
+ * Where an asset is, from submission to a live vault. The review statuses come
+ * from the backend; the last three come from the application's deployment.
+ */
+export type AssetStage = ApplicationStatus | "launching" | "launch_failed" | "live";
+
+export function assetStage(app: Pick<Application, "status" | "deployment">): AssetStage {
+  if (app.status !== "approved" || !app.deployment) return app.status;
+  if (app.deployment.status === "live") return "live";
+  if (app.deployment.status === "failed") return "launch_failed";
+  return "launching";
+}
+
 export const STATUS: Record<
-  ApplicationStatus,
+  AssetStage,
   { label: string; pill: string; Icon: typeof Clock }
 > = {
   submitted: { label: "Submitted", pill: "bg-[#229EDF]/12 text-[#8fd0f2]", Icon: Clock },
@@ -13,11 +36,18 @@ export const STATUS: Record<
     pill: "bg-[#f5a524]/12 text-[#f5c26b]",
     Icon: MessageSquareWarning,
   },
-  approved: { label: "Approved", pill: "bg-[#2ed06e]/12 text-[#7fe3a6]", Icon: FileCheck2 },
+  approved: { label: "Approved · ready to launch", pill: "bg-[#2ed06e]/12 text-[#7fe3a6]", Icon: FileCheck2 },
   rejected: { label: "Rejected", pill: "bg-[#ff3b30]/12 text-[#ff8a83]", Icon: FileX2 },
+  launching: { label: "Launching", pill: "bg-[#229EDF]/12 text-[#8fd0f2]", Icon: Loader2 },
+  launch_failed: {
+    label: "Launch interrupted",
+    pill: "bg-[#f5a524]/12 text-[#f5c26b]",
+    Icon: AlertTriangle,
+  },
+  live: { label: "Live", pill: "bg-[#2ed06e]/12 text-[#7fe3a6]", Icon: Rocket },
 };
 
-export function StatusPill({ status, className }: { status: ApplicationStatus; className?: string }) {
+export function StatusPill({ status, className }: { status: AssetStage; className?: string }) {
   const { label, pill, Icon } = STATUS[status];
   return (
     <span
@@ -35,9 +65,9 @@ export function StatusPill({ status, className }: { status: ApplicationStatus; c
 
 type StageState = "done" | "current" | "todo" | "warn" | "fail";
 
-function stages(status: ApplicationStatus): { label: string; state: StageState }[] {
-  const decision =
-    status === "approved" ? "Approved" : status === "rejected" ? "Rejected" : "Decision";
+function stages(status: AssetStage): { label: string; state: StageState }[] {
+  const approved = status === "approved" || status === "launching" || status === "launch_failed" || status === "live";
+  const decision = approved ? "Approved" : status === "rejected" ? "Rejected" : "Decision";
   return [
     { label: "Submitted", state: "done" },
     {
@@ -53,7 +83,20 @@ function stages(status: ApplicationStatus): { label: string; state: StageState }
     },
     {
       label: decision,
-      state: status === "approved" ? "done" : status === "rejected" ? "fail" : "todo",
+      state: approved ? "done" : status === "rejected" ? "fail" : "todo",
+    },
+    {
+      label: status === "launch_failed" ? "Launch interrupted" : "Live",
+      state:
+        status === "live"
+          ? "done"
+          : status === "launch_failed"
+            ? "warn"
+            : status === "approved" || status === "launching"
+              ? "current"
+              : status === "rejected"
+                ? "fail"
+                : "todo",
     },
   ];
 }
@@ -74,9 +117,9 @@ const TEXT: Record<StageState, string> = {
   todo: "text-white/35",
 };
 
-export function StatusTrack({ status }: { status: ApplicationStatus }) {
+export function StatusTrack({ status }: { status: AssetStage }) {
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-4 gap-2">
       {stages(status).map((s) => (
         <div key={s.label} className="flex flex-col gap-2">
           <span className={cn("h-1.5 rounded-full", BAR[s.state])} />

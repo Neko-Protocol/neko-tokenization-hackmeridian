@@ -2,7 +2,7 @@ import { ChevronRight } from "lucide-react";
 import type { Application } from "@/lib/services/launchpad.api";
 import { ASSET_TYPES, countryName } from "../../utils/fields";
 import { ASSET_ICONS } from "../../utils/assetIcons";
-import { StatusPill, StatusTrack } from "./StatusTrack";
+import { StatusPill, StatusTrack, assetStage } from "./StatusTrack";
 
 export const surface = "rounded-2xl border border-white/10 bg-[#1b1b1b]";
 
@@ -66,7 +66,7 @@ export function AssetCard({ app, onOpen }: { app: Application; onOpen: () => voi
             {assetTypeLabel(app.asset_type)} · {app.issuer_name}, {countryName(app.issuer_country)}
           </p>
         </div>
-        <StatusPill status={app.status} className="hidden sm:inline-flex" />
+        <StatusPill status={assetStage(app)} className="hidden sm:inline-flex" />
         <ChevronRight className="mt-3 h-5 w-5 shrink-0 text-white/25 transition-colors group-hover:text-white/70" />
       </div>
 
@@ -80,9 +80,9 @@ export function AssetCard({ app, onOpen }: { app: Application; onOpen: () => voi
       </dl>
 
       <div className="flex flex-col gap-3">
-        <StatusTrack status={app.status} />
+        <StatusTrack status={assetStage(app)} />
         <p className="text-[13px] text-white/40">
-          {app.offering_type === "public" ? "Public" : "Private"} offering · Submitted {formatDate(app.created_at)}
+          Submitted {formatDate(app.created_at)}
         </p>
       </div>
     </button>
