@@ -1,6 +1,9 @@
 "use client";
 
-import { ArrowLeft, ExternalLink, FileText, Link2 } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, ExternalLink, FileText, Link2, Rocket } from "lucide-react";
+import { VaultPanel } from "@/features/vault";
+import { ROUTES } from "@/lib/routes";
 import type { Application } from "@/lib/services/launchpad.api";
 import { cn } from "@/lib/utils";
 import { FIELD_BY_KEY, type FieldKey } from "../../utils/fields";
@@ -13,7 +16,7 @@ import {
   money,
   surface,
 } from "../ui/AssetList";
-import { StatusPill, StatusTrack } from "../ui/StatusTrack";
+import { StatusPill, StatusTrack, assetStage } from "../ui/StatusTrack";
 
 const NOTE_TONE: Record<string, string> = {
   approved: "bg-[#2ed06e]/10 text-[#b5f0cb]",
@@ -26,7 +29,6 @@ const GROUPS: { title: string; fields: FieldKey[] }[] = [
   {
     title: "Offering and investors",
     fields: [
-      "offering_type",
       "investor_countries",
       "max_investors",
       "accepts_us_investors",
@@ -41,6 +43,9 @@ export function AssetDetail({ app, onBack }: { app: Application; onBack: () => v
   const metrics = [
     { label: "Target raise", value: money(app.target_amount, app.currency) },
     { label: "Min. investment", value: money(app.min_ticket, app.currency) },
+    ...(app.min_target != null
+      ? [{ label: "Minimum raise", value: money(app.min_target, app.currency) }]
+      : []),
     { label: "Expected yield", value: app.expected_yield_pct != null ? `${app.expected_yield_pct}%` : "n/a" },
     { label: "Term", value: app.term_months != null ? `${app.term_months} months` : "n/a" },
   ];
@@ -66,10 +71,10 @@ export function AssetDetail({ app, onBack }: { app: Application; onBack: () => v
               {assetTypeLabel(app.asset_type)} · Submitted {formatDate(app.created_at)}
             </p>
           </div>
-          <StatusPill status={app.status} />
+          <StatusPill status={assetStage(app)} />
         </div>
         <div className={cn(surface, "p-5")}>
-          <StatusTrack status={app.status} />
+          <StatusTrack status={assetStage(app)} />
         </div>
         {app.review_note && (
           <div className={cn("rounded-2xl px-5 py-4", NOTE_TONE[app.status] ?? "bg-white/[0.04] text-white/75")}>
@@ -79,7 +84,9 @@ export function AssetDetail({ app, onBack }: { app: Application; onBack: () => v
         )}
       </header>
 
-      <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <LaunchSection app={app} />
+
+      <dl className={cn("grid grid-cols-2 gap-3", metrics.length > 4 ? "lg:grid-cols-5" : "lg:grid-cols-4")}>
         {metrics.map((m) => (
           <div key={m.label} className={cn(surface, "flex flex-col gap-1.5 p-5")}>
             <dt className="text-[13.5px] text-white/45">{m.label}</dt>
@@ -116,6 +123,22 @@ export function AssetDetail({ app, onBack }: { app: Application; onBack: () => v
         ))}
       </div>
 
+      {app.milestones.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <span className={cn(caption, "px-1")}>Repayment schedule</span>
+          <ol className={cn(surface, "flex flex-col divide-y divide-white/[0.05] px-5")}>
+            {app.milestones.map((m, i) => (
+              <li key={i} className="flex items-start justify-between gap-4 py-3.5 text-[15px]">
+                <span className="min-w-0 text-white">{m.title}</span>
+                <span className="shrink-0 text-right text-white/60">
+                  {m.amount_pct}% · {m.due ? formatDate(m.due) : "No date"}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
       <div className="flex flex-col gap-2">
         <span className={cn(caption, "px-1")}>Documents</span>
         {app.documents.length === 0 ? (
@@ -141,6 +164,42 @@ export function AssetDetail({ app, onBack }: { app: Application; onBack: () => v
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * What comes after approval: a call to launch, a launch to resume, or the live
+ * vault itself.
+ */
+function LaunchSection({ app }: { app: Application }) {
+  if (app.status !== "approved") return null;
+  const d = app.deployment;
+
+  if (d?.status === "live" && d.vault) {
+    return <VaultPanel appId={app.id} deployment={{ ...d, vault: d.vault }} />;
+  }
+
+  const resuming = d?.status === "failed" || d?.status === "launching";
+  return (
+    <div className="flex flex-col gap-4 rounded-2xl bg-[#2ed06e]/10 px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-1">
+        <p className="text-[17px] font-medium text-white">
+          {resuming ? "Your launch didn't finish" : "Approved. Ready to tokenize"}
+        </p>
+        <p className="text-[14.5px] text-white/60">
+          {resuming
+            ? "Pick up where it stopped. Nothing is deployed twice."
+            : "Choose a token symbol and a funding deadline, and Neko deploys your token and vault on Stellar."}
+        </p>
+      </div>
+      <Link
+        href={ROUTES.launch(app.id)}
+        className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 text-[15px] font-medium text-[#111] hover:opacity-90"
+      >
+        <Rocket className="h-4 w-4" />
+        {resuming ? "Resume launch" : "Launch to tokenize"}
+      </Link>
     </div>
   );
 }

@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { accountUrl } from "@neko-tokenization/stellar";
+import {
+  accountUrl,
+  formatUsdc,
+  splitTranches,
+  totalRepayment,
+} from "@neko-tokenization/stellar";
 import { ArrowLeft, ExternalLink, FileText, Sparkles } from "lucide-react";
 
 import { Notice } from "@/components/ui/Notice";
@@ -10,6 +15,7 @@ import { SectionCard } from "@/components/ui/SectionCard";
 import { Spinner } from "@/components/ui/Spinner";
 import { useAuth } from "@/features/auth/AuthContext";
 import { DecisionPanel } from "@/features/applications/DecisionPanel";
+import { VaultOpsPanel } from "@/features/applications/VaultOpsPanel";
 import {
   ASSET_TYPE_LABELS,
   StatusBadge,
@@ -126,6 +132,14 @@ export function ApplicationDetail({ id }: { id: string }) {
     app.issuer_name;
 
   const milestonesOk = Math.abs(milestoneSum - 100) < 0.001;
+  // The same arithmetic the backend uses to build the vault, so the reviewer
+  // approves the exact amounts that go on-chain.
+  const repayment =
+    app.expected_yield_pct != null && app.term_months != null
+      ? totalRepayment(app.target_amount, app.expected_yield_pct, app.term_months)
+      : null;
+  const trancheAmounts =
+    repayment !== null ? splitTranches(repayment, app.milestones.map((m) => Number(m.amount_pct))) : [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -155,10 +169,18 @@ export function ApplicationDetail({ id }: { id: string }) {
           <StatusBadge status={app.status} />
         </div>
 
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
           <KeyFigure
             label="Target amount"
             value={formatCurrency(app.target_amount, app.currency)}
+          />
+          <KeyFigure
+            label="Minimum raise"
+            value={
+              app.min_target != null
+                ? formatCurrency(app.min_target, app.currency)
+                : "Not set"
+            }
           />
           <KeyFigure
             label="Min ticket"
@@ -177,6 +199,10 @@ export function ApplicationDetail({ id }: { id: string }) {
             value={
               app.term_months != null ? `${app.term_months} months` : "Not set"
             }
+          />
+          <KeyFigure
+            label="Total repayment"
+            value={repayment !== null ? formatUsdc(repayment) : "Not set"}
           />
         </div>
       </div>
@@ -247,7 +273,8 @@ export function ApplicationDetail({ id }: { id: string }) {
           </SectionCard>
 
           <SectionCard
-            title="Milestones"
+            title="Repayment schedule"
+            description="Each payment becomes a vault tranche of principal plus interest, and a milestone in the on-chain tracker under the same title."
             action={
               app.milestones.length > 0 ? (
                 <span
@@ -266,7 +293,7 @@ export function ApplicationDetail({ id }: { id: string }) {
             }
           >
             {app.milestones.length === 0 ? (
-              <p className="text-[13px] text-white/35">No milestones.</p>
+              <p className="text-[13px] text-white/35">No repayment schedule.</p>
             ) : (
               <ol className="flex flex-col gap-2">
                 {app.milestones.map((m, i) => (
@@ -285,8 +312,15 @@ export function ApplicationDetail({ id }: { id: string }) {
                         {m.due ? `Due ${formatDate(m.due)}` : "No due date"}
                       </p>
                     </div>
-                    <span className="text-[14px] font-semibold text-white">
-                      {m.amount_pct}%
+                    <span className="text-right">
+                      <span className="block text-[14px] font-semibold text-white">
+                        {m.amount_pct}%
+                      </span>
+                      {trancheAmounts[i] !== undefined && (
+                        <span className="text-[12px] text-white/45">
+                          {formatUsdc(trancheAmounts[i])}
+                        </span>
+                      )}
                     </span>
                   </li>
                 ))}
@@ -355,6 +389,7 @@ export function ApplicationDetail({ id }: { id: string }) {
 
         <div className="flex min-w-0 flex-col gap-6 lg:sticky lg:top-8 lg:self-start">
           <DecisionPanel application={app} onUpdated={onUpdated} />
+          <VaultOpsPanel application={app} />
           <CompliancePanel application={app} />
         </div>
       </div>

@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
 import {
   Ban,
-  Globe,
   Lock,
   Megaphone,
   Users,
@@ -17,21 +16,22 @@ import {
   ASSET_TYPES,
   COUNTRIES,
   FIELD_BY_KEY,
-  OFFERING_TYPES,
   STEPS,
   countryName,
   type ApplicationFormValues,
   type FieldKey,
 } from "../../utils/fields";
-import { describeValue } from "../../utils/validation";
+import { describeValue, repaymentPlan } from "../../utils/validation";
 import { ASSET_ICONS } from "../../utils/assetIcons";
 import { DocumentsField } from "./DocumentsField";
+import { RepaymentField } from "./RepaymentField";
 
 type TextKey =
   | "issuer_name"
   | "asset_name"
   | "target_amount"
   | "min_ticket"
+  | "min_target"
   | "expected_yield_pct"
   | "term_months"
   | "max_investors";
@@ -41,7 +41,6 @@ type YesNoKey = "accepts_us_investors" | "uses_mass_marketing";
 const ADVANCE_DELAY_MS = 220;
 
 
-const OFFERING_ICONS: Record<string, LucideIcon> = { private: Lock, public: Globe };
 
 const YES_NO: Record<
   YesNoKey,
@@ -63,6 +62,7 @@ const PLACEHOLDERS: Partial<Record<FieldKey, string>> = {
   description: "What it is, how it earns, who runs it and what investors receive.",
   target_amount: "250,000",
   min_ticket: "100",
+  min_target: "125,000",
   expected_yield_pct: "9.5",
   term_months: "18",
   max_investors: "50",
@@ -291,26 +291,22 @@ export function ApplicationWizard({
           </>
         );
       case "type":
-      case "offering": {
-        const key = spec.id === "type" ? "asset_type" : "offering_type";
-        const options = spec.id === "type" ? ASSET_TYPES : OFFERING_TYPES;
-        const icons = spec.id === "type" ? ASSET_ICONS : OFFERING_ICONS;
         return (
           <Controller
             control={control}
-            name={key}
+            name="asset_type"
             render={({ field }) =>
               wrap(
-                key,
+                "asset_type",
                 <>
                   <div
                     role="radiogroup"
                     className="grid grid-cols-2 gap-3"
                   >
-                    {options.map((t) => (
+                    {ASSET_TYPES.map((t) => (
                       <Tile
                         key={t.value}
-                        icon={icons[t.value]}
+                        icon={ASSET_ICONS[t.value]}
                         label={t.label}
                         selected={field.value === t.value}
                         onSelect={() => {
@@ -320,13 +316,12 @@ export function ApplicationWizard({
                       />
                     ))}
                   </div>
-                  {hint(options.find((t) => t.value === field.value)?.hint)}
+                  {hint(ASSET_TYPES.find((t) => t.value === field.value)?.hint)}
                 </>
               )
             }
           />
         );
-      }
       case "asset":
         return (
           <>
@@ -362,7 +357,11 @@ export function ApplicationWizard({
                 <span className="text-[15px] text-white/70">USD</span>
               </div>
             </div>
-            {textCard("min_ticket", false)}
+            <div className="grid grid-cols-2 items-start gap-3">
+              {textCard("min_ticket", false)}
+              {textCard("min_target", false)}
+            </div>
+            {hint(FIELD_BY_KEY.get("min_target")!.help)}
           </>
         );
       case "returns":
@@ -371,6 +370,26 @@ export function ApplicationWizard({
             {textCard("expected_yield_pct", true)}
             {textCard("term_months", false)}
           </div>
+        );
+      case "repayment":
+        return (
+          <Controller
+            control={control}
+            name="milestones"
+            render={({ field }) =>
+              wrap(
+                "milestones",
+                <RepaymentField
+                  value={field.value ?? []}
+                  onChange={field.onChange}
+                  termMonths={Number(values.term_months) || null}
+                  plan={repaymentPlan(values)}
+                  surface={surface}
+                  inputClass={bareInput}
+                />
+              )
+            }
+          />
         );
       case "investors":
         return (
@@ -506,6 +525,25 @@ export function ApplicationWizard({
                   </button>
                 </div>
                 <dl className={cn(surface, "flex flex-col divide-y divide-white/[0.05] px-4")}>
+                  {s.id === "repayment" &&
+                    (values.milestones ?? []).map((row, i) => {
+                      const amount = repaymentPlan(values)?.amounts[i];
+                      return (
+                        <div key={i} className="flex items-start justify-between gap-4 py-3 text-[14.5px]">
+                          <dt className="min-w-0 text-white/45">
+                            {row.due || "No date"} · {row.title || "Untitled"}
+                          </dt>
+                          <dd className="shrink-0 text-right text-white">
+                            {row.amount_pct}%
+                            {amount !== undefined && (
+                              <span className="block text-[12.5px] text-white/45">
+                                {(Number(amount) / 1e7).toLocaleString("en-US", { style: "currency", currency: "USD" })}
+                              </span>
+                            )}
+                          </dd>
+                        </div>
+                      );
+                    })}
                   {s.fields.map((k) => {
                     const text = describeValue(k, values[k]);
                     return (

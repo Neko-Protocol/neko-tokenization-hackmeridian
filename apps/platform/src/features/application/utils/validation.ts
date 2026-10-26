@@ -1,11 +1,13 @@
 import type { Resolver } from "react-hook-form";
+import { splitTranches, totalRepayment } from "@neko-tokenization/stellar";
 import type { CreateApplicationInput } from "@/lib/services/launchpad.api";
 import {
   ASSET_TYPES,
-  OFFERING_TYPES,
+  MAX_REPAYMENTS,
   STEPS,
   countryName,
   type ApplicationFormValues,
+  type RepaymentValue,
   type FieldKey,
   type StepSpec,
 } from "./fields";
@@ -46,6 +48,11 @@ export function validate(v: ApplicationFormValues): FieldErrors {
   if (ticket === null || Number.isNaN(ticket) || ticket <= 0)
     errors.min_ticket = "Enter an amount above 0";
   else if (target && ticket > target) errors.min_ticket = "Can't be more than the target raise";
+  const minTarget = num(v.min_target);
+  if (minTarget === null || Number.isNaN(minTarget) || minTarget <= 0)
+    errors.min_target = "Enter an amount above 0";
+  else if (target && minTarget > target) errors.min_target = "Can't be more than the target raise";
+  else if (ticket && minTarget < ticket) errors.min_target = "Can't be less than the minimum investment";
 
   const yieldPct = num(v.expected_yield_pct);
   if (yieldPct === null) errors.expected_yield_pct = "Enter the expected yearly return";
@@ -55,12 +62,13 @@ export function validate(v: ApplicationFormValues): FieldErrors {
   else if (Number.isNaN(term) || term < 1 || !Number.isInteger(term))
     errors.term_months = "Whole months, 1 or more";
 
-  if (!OFFERING_TYPES.some((t) => t.value === v.offering_type))
-    errors.offering_type = "Pick who can invest";
   if (v.investor_countries.length === 0) errors.investor_countries = "Add at least one country";
   const maxInv = num(v.max_investors);
   if (Number.isNaN(maxInv) || (maxInv !== null && (maxInv < 1 || !Number.isInteger(maxInv))))
     errors.max_investors = "Whole number, 1 or more";
+
+  const repaymentError = validateRepayments(v.milestones ?? [], term);
+  if (repaymentError) errors.milestones = repaymentError;
 
   if (v.accepts_us_investors === null) errors.accepts_us_investors = "Choose yes or no";
   if (v.uses_mass_marketing === null) errors.uses_mass_marketing = "Choose yes or no";
@@ -70,6 +78,55 @@ export function validate(v: ApplicationFormValues): FieldErrors {
     errors.documents = "Each link needs a name and a valid URL";
 
   return errors;
+}
+
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Sum of the repayment percentages, rounded to cents of a percent. */
+export function repaymentPctTotal(rows: RepaymentValue[]): number {
+  const total = rows.reduce((sum, r) => sum + (num(r.amount_pct) || 0), 0);
+  return Math.round(total * 100) / 100;
+}
+
+function validateRepayments(rows: RepaymentValue[], term: number | null): string | null {
+  if (rows.length === 0) return "Add at least one repayment";
+  if (rows.length > MAX_REPAYMENTS) return `At most ${MAX_REPAYMENTS} repayments`;
+  if (rows.some((r) => !r.title.trim())) return "Give every repayment a title";
+  if (rows.some((r) => r.title.trim().length > 120)) return "Titles can be at most 120 characters";
+  const pcts = rows.map((r) => num(r.amount_pct));
+  if (pcts.some((p) => p === null || Number.isNaN(p) || p <= 0))
+    return "Every repayment needs a share above 0%";
+  if (repaymentPctTotal(rows) !== 100) return "The shares must add up to 100%";
+  if (rows.some((r) => !DATE.test(r.due) || Number.isNaN(Date.parse(r.due))))
+    return "Every repayment needs a due date";
+  const today = new Date().toISOString().slice(0, 10);
+  if (rows[0].due <= today) return "The first repayment must be after today";
+  for (let i = 1; i < rows.length; i++)
+    if (rows[i].due <= rows[i - 1].due) return "Due dates must be in order, one after another";
+  if (term && Number.isInteger(term)) {
+    const end = new Date();
+    end.setMonth(end.getMonth() + term + 3);
+    if (rows[rows.length - 1].due > end.toISOString().slice(0, 10))
+      return "The last repayment is well past the term you set";
+  }
+  return null;
+}
+
+/**
+ * The total investors get back and each payment in USDC base units, as the
+ * vault will be created with them. `null` while the inputs are incomplete.
+ */
+export function repaymentPlan(
+  v: Pick<ApplicationFormValues, "target_amount" | "expected_yield_pct" | "term_months" | "milestones">
+): { total: bigint; amounts: bigint[] } | null {
+  const target = num(v.target_amount);
+  const yieldPct = num(v.expected_yield_pct);
+  const term = num(v.term_months);
+  if (!target || target <= 0 || yieldPct === null || Number.isNaN(yieldPct) || !term || term < 1)
+    return null;
+  const total = totalRepayment(target, yieldPct, term);
+  const pcts = (v.milestones ?? []).map((r) => num(r.amount_pct) || 0);
+  return { total, amounts: splitTranches(total, pcts) };
 }
 
 export const applicationResolver: Resolver<ApplicationFormValues> = async (values) => {
@@ -116,15 +173,19 @@ export function buildPayload(
       target_amount: num(v.target_amount)!,
       currency: "USD",
       min_ticket: num(v.min_ticket)!,
+      min_target: num(v.min_target)!,
       ...(yieldPct !== null && { expected_yield_pct: yieldPct }),
       ...(term !== null && { term_months: term }),
       ...(maxInv !== null && { max_investors: maxInv }),
-      offering_type: v.offering_type as CreateApplicationInput["offering_type"],
+      offering_type: "public",
       investor_countries: v.investor_countries,
       accepts_us_investors: v.accepts_us_investors!,
       uses_mass_marketing: v.uses_mass_marketing!,
-      // Funds are released in one go; the backend still expects the list.
-      milestones: [],
+      milestones: v.milestones.map((r) => ({
+        title: r.title.trim(),
+        amount_pct: num(r.amount_pct)!,
+        due: r.due,
+      })),
       documents: v.documents.map((d) => ({ name: d.name.trim(), url: d.url.trim() })),
     },
   };
@@ -153,6 +214,18 @@ export function coerceProposal(
         return { name: String(o.name ?? ""), url: String(o.url ?? "") };
       });
     }
+    case "milestones": {
+      if (!Array.isArray(raw)) return undefined;
+      return raw.slice(0, MAX_REPAYMENTS).map((r) => {
+        const o = (r ?? {}) as Record<string, unknown>;
+        const due = String(o.due ?? "");
+        return {
+          title: String(o.title ?? ""),
+          amount_pct: o.amount_pct === undefined ? "" : String(o.amount_pct),
+          due: DATE.test(due.slice(0, 10)) ? due.slice(0, 10) : "",
+        };
+      });
+    }
     case "currency":
       return typeof raw === "string" && raw.trim().toUpperCase() === "USD" ? "USD" : undefined;
     case "issuer_country":
@@ -168,10 +241,17 @@ export function describeValue(key: FieldKey, value: unknown): string {
   if (value === null || value === undefined || value === "") return "";
   if (typeof value === "boolean") return value ? "Yes" : "No";
   if (key === "asset_type") return ASSET_TYPES.find((t) => t.value === value)?.label ?? String(value);
-  if (key === "offering_type")
-    return OFFERING_TYPES.find((t) => t.value === value)?.label ?? String(value);
   if (key === "issuer_country") return countryName(String(value));
-  if (key === "target_amount" || key === "min_ticket" || key === "max_investors") {
+  if (key === "milestones" && Array.isArray(value)) {
+    const rows = value as RepaymentValue[];
+    return rows.length === 1 ? "1 repayment" : `${rows.length} repayments`;
+  }
+  if (
+    key === "target_amount" ||
+    key === "min_ticket" ||
+    key === "min_target" ||
+    key === "max_investors"
+  ) {
     const n = num(String(value));
     return n === null || Number.isNaN(n) ? String(value) : n.toLocaleString("en-US");
   }

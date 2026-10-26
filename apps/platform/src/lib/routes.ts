@@ -4,4 +4,5 @@ export const ROUTES = {
   dashboard: "/dashboard",
   newAsset: "/assets/new",
   asset: (id: string) => `/assets/${id}`,
+  launch: (id: string) => `/assets/${id}/launch`,
 } as const;

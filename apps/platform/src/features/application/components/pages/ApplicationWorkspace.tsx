@@ -7,7 +7,11 @@ import { usePrivy } from "@privy-io/react-auth";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Notice } from "@/components/ui/Notice";
 import { BackendError } from "@/lib/services/backend-client";
-import type { Application, LaunchpadAccount } from "@/lib/services/launchpad.api";
+import {
+  launchpadApi,
+  type Application,
+  type LaunchpadAccount,
+} from "@/lib/services/launchpad.api";
 import { useAssistant, type Proposal } from "../../hooks/useAssistant";
 import { useCreateApplication } from "../../hooks/useApplications";
 import {
@@ -191,19 +195,8 @@ export function ApplicationWorkspace({
 
   const uploadDocument = async (file: File): Promise<{ name: string; url: string }> => {
     const token = await getAccessToken();
-    const data = new FormData();
-    data.set("file", file);
-    const res = await fetch("/api/backend-proxy/v1/launchpad/applications/documents", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: data,
-    });
-    const body = (await res.json().catch(() => ({}))) as {
-      document?: { name: string; url: string };
-      message?: string;
-    };
-    if (!res.ok || !body.document) throw new Error(body.message ?? "Upload failed.");
-    return body.document;
+    if (!token) throw new Error("Your session expired. Sign in again.");
+    return launchpadApi.uploadDocument(token, file);
   };
 
   const discard = async () => {

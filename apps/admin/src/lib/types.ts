@@ -32,6 +32,22 @@ export interface ApplicationDocument {
   url: string;
 }
 
+export type DeploymentStatus = "launching" | "live" | "failed";
+
+/** The on-chain side of an approved application, once the issuer launches it. */
+export interface DeploymentView {
+  vault_id: string;
+  token_symbol: string;
+  funding_deadline: string;
+  token: string | null;
+  compliance: string | null;
+  vault: string | null;
+  status: DeploymentStatus;
+  steps: Record<string, string>;
+  error: { step: string; message: string } | null;
+  launched_at: string | null;
+}
+
 export interface VerificationView {
   id: string;
   kind: VerificationKind;
@@ -55,6 +71,8 @@ export interface ApplicationView {
   target_amount: number;
   currency: string;
   min_ticket: number;
+  /** Null on applications sent before the minimum raise was asked for. */
+  min_target: number | null;
   expected_yield_pct: number | null;
   term_months: number | null;
   max_investors: number | null;
@@ -62,8 +80,10 @@ export interface ApplicationView {
   investor_countries: string[];
   accepts_us_investors: boolean;
   uses_mass_marketing: boolean;
+  /** The repayment schedule: one vault tranche and one tracked milestone each. */
   milestones: ApplicationMilestone[];
   documents: ApplicationDocument[];
+  deployment: DeploymentView | null;
   ai_summary: string | null;
   review_note: string | null;
   reviewed_by: string | null;

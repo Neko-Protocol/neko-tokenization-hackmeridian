@@ -24,7 +24,7 @@ type Assistant = ReturnType<typeof useAssistant>;
 const HELP_STEP = "Help me answer this step";
 
 function suggestions(field: FieldKey | null): string[] {
-  const general = ["Pre-fill the form from my documents", "Should my offering be private or public?"];
+  const general = ["Pre-fill the form from my documents", "Which documents should I include?"];
   if (!field) return [...general, "Which rules apply in Costa Rica?", "What happens after I submit?"];
   const label = FIELD_BY_KEY.get(field)!.label.toLowerCase();
   const typical =
