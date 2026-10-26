@@ -3,3 +3,7 @@ export * from "./clients";
 export * from "./explorer";
 export * from "./friendbot";
 export * from "./deployments";
+export * from "./amounts";
+export * from "./terms";
+export * from "./contracts";
+export * from "./tx";
