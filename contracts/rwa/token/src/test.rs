@@ -37,6 +37,37 @@ impl PermissiveVerifier {
     }
 }
 
+/// A verifier that approves only the addresses it was told to.
+///
+/// Neither of the other two can express a mixed set: the permissive one lets
+/// everyone through and the real one, against an empty registry, lets nobody.
+/// The leak worth testing is a verified holder sending to an unverified
+/// wallet, which needs one of each.
+#[contract]
+pub struct SelectiveVerifier;
+
+#[contractimpl]
+impl SelectiveVerifier {
+    pub fn allow(e: &Env, account: Address) {
+        e.storage().persistent().set(&account, &true);
+    }
+
+    pub fn verify_identity(e: &Env, account: Address) {
+        if !e
+            .storage()
+            .persistent()
+            .get::<_, bool>(&account)
+            .unwrap_or(false)
+        {
+            panic!("identity not verified");
+        }
+    }
+
+    pub fn recovery_target(_e: &Env, _old_account: Address) -> Option<Address> {
+        None
+    }
+}
+
 struct Fixture<'a> {
     e: Env,
     token: RWATokenContractClient<'a>,
@@ -237,4 +268,60 @@ fn onchain_id_is_unset_until_a_manager_sets_it() {
 
     f.token.set_onchain_id(&issuer_identity, &f.manager);
     assert_eq!(f.token.onchain_id(), issuer_identity);
+}
+
+/// A verified investor cannot pass their position to a wallet that never
+/// passed KYC. Without this the whole gate would be worth little: anyone
+/// could be let in once and then hand the token to anybody.
+///
+/// Both halves matter. The first proves the verifier admits a transfer when
+/// both sides are verified, so the second is not passing for the wrong
+/// reason — a mock that rejected everyone would satisfy it vacuously.
+#[test]
+fn a_verified_holder_cannot_transfer_to_an_unverified_wallet() {
+    let e = Env::default();
+    e.mock_all_auths();
+    e.ledger().with_mut(|l| l.timestamp = 1_700_000_000);
+
+    let admin = Address::generate(&e);
+    let manager = Address::generate(&e);
+    let alice = Address::generate(&e);
+    let bob = Address::generate(&e);
+    let stranger = Address::generate(&e);
+
+    let compliance = e.register(compliance_wasm::WASM, (admin.clone(), manager.clone()));
+    let verifier = e.register(SelectiveVerifier, ());
+    let verifier_client = SelectiveVerifierClient::new(&e, &verifier);
+    verifier_client.allow(&alice);
+    verifier_client.allow(&bob);
+
+    let token = e.register(
+        RWATokenContract,
+        (
+            String::from_str(&e, "Casa Escazu"),
+            String::from_str(&e, "CASA"),
+            admin.clone(),
+            manager.clone(),
+            compliance.clone(),
+            verifier,
+        ),
+    );
+    compliance_wasm::Client::new(&e, &compliance).bind_token(&token, &manager);
+    let token = RWATokenContractClient::new(&e, &token);
+
+    token.mint(&alice, &1_000, &manager);
+
+    // Verified to verified goes through.
+    token.transfer(&alice, &bob, &100);
+    assert_eq!(token.balance(&bob), 100);
+
+    // Verified to a wallet with no claims does not.
+    assert!(token.try_transfer(&alice, &stranger, &100).is_err());
+    assert_eq!(token.balance(&stranger), 0);
+    assert_eq!(token.balance(&alice), 900);
+
+    // And the stranger cannot be minted into either, which is the same gate
+    // reached by the other door.
+    assert!(token.try_mint(&stranger, &100, &manager).is_err());
+    assert_eq!(token.total_supply(), 1_000);
 }
