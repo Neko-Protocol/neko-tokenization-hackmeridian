@@ -2,11 +2,11 @@
 
 Versioned question sets that measure whether the knowledge base returns the expected source. They test retrieval only: they do not grade the answers the Launchpad assistant writes.
 
-| File                 | What it checks                                                                                 | Tool it exercises                |
-| -------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------- |
-| `laws.json`          | 20 questions (12 in Spanish, 8 in English) with the verbatim article a reviewer expects to see | `search_law` (assistant's first) |
-| `laws-holdout.json`  | 12 held-out questions (mix es/en, several countries), written from article text before search changes | `search_law`              |
-| `questions.json`     | 4 questions with the obligations guide that should answer them                                 | `search_kb`                      |
+| File                | What it checks                                                                                        | Tool it exercises                |
+| ------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------- |
+| `laws.json`         | 20 questions (12 in Spanish, 8 in English) with the verbatim article a reviewer expects to see        | `search_law` (assistant's first) |
+| `laws-holdout.json` | 12 held-out questions (mix es/en, several countries), written from article text before search changes | `search_law`                     |
+| `questions.json`    | 4 questions with the obligations guide that should answer them                                        | `search_kb`                      |
 
 The expected articles in `laws.json` come from the citations the tokenization admin's compliance checklist already relies on (`apps/admin/src/features/compliance/rules.ts`). They were written before the first run and were not changed to match the results.
 
@@ -34,12 +34,12 @@ What the misses show: general questions about "public offering" in one country o
 
 Soft jurisdiction re-rank in `search_law`: detect country, demonym, or regulator cues in the query; boost matching norms and down-weight others; leave ranking unchanged when nothing is detected. Modest Spanish/English synonym and definition-query tweaks. Tuned only against `laws.json`.
 
-| Set                 | Top-1 | Top-3 | Top-5 |
-| ------------------- | ----- | ----- | ----- |
-| `laws.json`         | 11/20 | 16/20 | 18/20 |
-| `laws-holdout.json` (baseline, before boost) | 5/12 | 7/12 | 7/12 |
-| `laws-holdout.json` (after boost, single run) | 5/12 | 7/12 | 8/12 |
-| `questions.json`    | 4/4   | 4/4   | 4/4   |
+| Set                                           | Top-1 | Top-3 | Top-5 |
+| --------------------------------------------- | ----- | ----- | ----- |
+| `laws.json`                                   | 11/20 | 16/20 | 18/20 |
+| `laws-holdout.json` (baseline, before boost)  | 5/12  | 7/12  | 7/12  |
+| `laws-holdout.json` (after boost, single run) | 5/12  | 7/12  | 8/12  |
+| `questions.json`                              | 4/4   | 4/4   | 4/4   |
 
 Remaining misses on `laws.json`:
 
