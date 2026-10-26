@@ -1,4 +1,4 @@
-import { backendClient } from "./backend-client";
+import { backendBaseUrl, backendClient } from "./backend-client";
 
 export type VerificationKind = "kyc" | "kyb";
 export type VerificationStatus =
@@ -52,6 +52,49 @@ export type AssetType =
   | "energy"
   | "other";
 
+export interface ApplicationMilestone {
+  title: string;
+  /** Share of the total repayment, principal plus interest. */
+  amount_pct: number;
+  /** YYYY-MM-DD. */
+  due?: string;
+}
+
+export type DeploymentStatus = "launching" | "live" | "failed";
+
+/** The launch steps the backend runs, in order. */
+export type LaunchStep =
+  | "create_vault"
+  | "wire_vault"
+  | "accept_admin"
+  | "bind_compliance"
+  | "bind_registry"
+  | "register_milestones";
+
+/** The on-chain side of an approved application, once the issuer launches it. */
+export interface Deployment {
+  /** 64 hex characters; the factory derives every contract address from it. */
+  vault_id: string;
+  token_symbol: string;
+  /** ISO timestamp. */
+  funding_deadline: string;
+  token: string | null;
+  compliance: string | null;
+  vault: string | null;
+  status: DeploymentStatus;
+  /** Transaction hash of every step that has run, or `"skipped"` when it was already done on-chain. */
+  steps: Partial<Record<LaunchStep, string>>;
+  /** The step that failed and why, when `status` is `failed`. */
+  error: { step: LaunchStep; message: string } | null;
+  launched_at: string | null;
+}
+
+export interface LaunchInput {
+  token_symbol: string;
+  /** ISO timestamp. */
+  funding_deadline: string;
+}
+
 export interface CreateApplicationInput {
   issuer_name: string;
   issuer_country: string;
@@ -61,6 +104,8 @@ export interface CreateApplicationInput {
   target_amount: number;
   currency: string;
   min_ticket: number;
+  /** Below this by the funding deadline, the raise fails and investors are refunded. */
+  min_target: number;
   expected_yield_pct?: number;
   term_months?: number;
   max_investors?: number;
@@ -68,7 +113,8 @@ export interface CreateApplicationInput {
   investor_countries: string[];
   accepts_us_investors: boolean;
   uses_mass_marketing: boolean;
-  milestones: { title: string; amount_pct: number; due?: string }[];
+  /** The repayment schedule: one vault tranche and one tracked milestone each. */
+  milestones: ApplicationMilestone[];
   documents: { name: string; url: string }[];
   /** The backend closes this assistant session and writes the reviewer summary. */
   assistant_session_id?: string;
@@ -81,15 +127,19 @@ export interface Application
       | "expected_yield_pct"
       | "term_months"
       | "max_investors"
+      | "min_target"
       | "assistant_session_id"
     >
   > {
   id: string;
   account_id: string;
   status: ApplicationStatus;
+  deployment: Deployment | null;
   expected_yield_pct: number | null;
   term_months: number | null;
   max_investors: number | null;
+  /** Null on applications sent before the minimum raise was asked for. */
+  min_target: number | null;
   ai_summary: string | null;
   review_note: string | null;
   reviewed_at: string | null;
@@ -136,6 +186,45 @@ export const launchpadApi = {
     backendClient.post<Application>("/v1/launchpad/applications", input, {
       headers: bearer(accessToken),
     }),
+
+  /**
+   * Deploy the approved application's token, compliance contract and vault.
+   * Safe to call again after a failure: the backend resumes from the last step
+   * that went through.
+   */
+  launchApplication: (accessToken: string, id: string, input: LaunchInput) =>
+    backendClient.post<Application>(
+      `/v1/launchpad/applications/${encodeURIComponent(id)}/launch`,
+      input,
+      { headers: bearer(accessToken) }
+    ),
+
+  /** Testnet only: send test USDC to an address that already trusts it. */
+  faucetUsdc: (accessToken: string, address: string, amount: number) =>
+    backendClient.post<{ tx_hash: string }>(
+      "/v1/launchpad/faucet/usdc",
+      { address, amount },
+      { headers: bearer(accessToken) }
+    ),
+
+  /** Upload a file to the issuer's document store; returns a signed link to it. */
+  uploadDocument: async (
+    accessToken: string,
+    file: File
+  ): Promise<{ name: string; url: string }> => {
+    const data = new FormData();
+    data.set("file", file);
+    const res = await fetch(
+      `${backendBaseUrl}/v1/launchpad/applications/documents`,
+      { method: "POST", headers: bearer(accessToken), body: data }
+    );
+    const body = (await res.json().catch(() => ({}))) as {
+      document?: { name: string; url: string };
+      message?: string;
+    };
+    if (!res.ok || !body.document) throw new Error(body.message ?? "Upload failed.");
+    return body.document;
+  },
 
   myApplications: (accessToken: string) =>
     backendClient.get<Application[]>("/v1/launchpad/applications/mine", {

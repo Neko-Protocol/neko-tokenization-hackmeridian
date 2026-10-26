@@ -9,19 +9,6 @@ export const ASSET_TYPES = [
   { value: "other", label: "Other", hint: "Something else that earns" },
 ] as const;
 
-export const OFFERING_TYPES = [
-  {
-    value: "private",
-    label: "Private",
-    hint: "Only invited, verified investors. Usually lighter rules.",
-  },
-  {
-    value: "public",
-    label: "Public",
-    hint: "Listed for everyone on Neko Pro. Usually needs regulator approval.",
-  },
-] as const;
-
 export const COUNTRIES: { code: string; name: string }[] = [
   { code: "CR", name: "Costa Rica" },
   { code: "MX", name: "Mexico" },
@@ -66,6 +53,21 @@ export interface DocumentLinkValue {
   url: string;
 }
 
+/**
+ * One scheduled repayment. On launch each one becomes a vault tranche (its
+ * share of principal plus interest, due on `due`) and a milestone in the
+ * on-chain tracker under the same title.
+ */
+export interface RepaymentValue {
+  title: string;
+  /** Share of the total repayment, as a percentage string. */
+  amount_pct: string;
+  /** YYYY-MM-DD. */
+  due: string;
+}
+
+export const MAX_REPAYMENTS = 12;
+
 /** Numbers stay strings while editing so inputs can be empty. */
 export interface ApplicationFormValues {
   issuer_name: string;
@@ -76,13 +78,14 @@ export interface ApplicationFormValues {
   target_amount: string;
   currency: string;
   min_ticket: string;
+  min_target: string;
   expected_yield_pct: string;
   term_months: string;
   max_investors: string;
-  offering_type: string;
   investor_countries: string[];
   accepts_us_investors: boolean | null;
   uses_mass_marketing: boolean | null;
+  milestones: RepaymentValue[];
   documents: DocumentLinkValue[];
 }
 
@@ -142,7 +145,7 @@ export const FIELDS: FieldSpec[] = [
     key: "target_amount",
     label: "Target raise",
     question: "How much do you want to raise?",
-    help: "The total you need from investors. Funds are released to you in one go when the raise closes.",
+    help: "The most you will raise from investors. Funds are released to you in one go when the raise closes.",
     required: true,
     format: "positive number, no symbols, e.g. 250000",
   },
@@ -158,9 +161,17 @@ export const FIELDS: FieldSpec[] = [
     key: "min_ticket",
     label: "Minimum investment",
     question: "What's the smallest amount someone can invest?",
-    help: "Lower minimums reach more people. Private offerings often ask for more.",
+    help: "Lower minimums reach more people.",
     required: true,
     format: "positive number, e.g. 100",
+  },
+  {
+    key: "min_target",
+    label: "Minimum raise",
+    question: "What's the least you need for the raise to go ahead?",
+    help: "If investors put in less than this by the funding deadline, the raise fails and everyone gets their money back.",
+    required: true,
+    format: "positive number, at least the minimum investment and at most the target raise, e.g. 125000",
   },
   {
     key: "expected_yield_pct",
@@ -179,12 +190,12 @@ export const FIELDS: FieldSpec[] = [
     format: "whole number of months, e.g. 18",
   },
   {
-    key: "offering_type",
-    label: "Offering type",
-    question: "Who can invest?",
-    help: "Private offerings go to a limited group of verified investors. Public offerings are open to everyone and normally need regulator authorization.",
+    key: "milestones",
+    label: "Repayment schedule",
+    question: "How will you pay investors back?",
+    help: "Split the total repayment, principal plus interest, into dated payments. Name each one after what you will have achieved by then; Neko checks that progress on-chain.",
     required: true,
-    format: "one of: private, public",
+    format: `array of { title: string, amount_pct: number, due: YYYY-MM-DD }, 1 to ${MAX_REPAYMENTS} entries, percentages add up to 100, dates in order`,
   },
   {
     key: "investor_countries",
@@ -267,7 +278,7 @@ export const STEPS: StepSpec[] = [
     id: "raise",
     title: "Your raise",
     subtitle: "Funds are released to you in one go when the raise closes.",
-    fields: ["target_amount", "currency", "min_ticket"],
+    fields: ["target_amount", "currency", "min_ticket", "min_target"],
   },
   {
     id: "returns",
@@ -276,11 +287,10 @@ export const STEPS: StepSpec[] = [
     fields: ["expected_yield_pct", "term_months"],
   },
   {
-    id: "offering",
-    title: "Offering",
-    subtitle: "Who can invest?",
-    fields: ["offering_type"],
-    choice: true,
+    id: "repayment",
+    title: "Repayment",
+    subtitle: "When investors get paid back, and what you will have done by each date.",
+    fields: ["milestones"],
   },
   {
     id: "investors",
@@ -320,13 +330,14 @@ export function emptyForm(): ApplicationFormValues {
     target_amount: "",
     currency: "USD",
     min_ticket: "",
+    min_target: "",
     expected_yield_pct: "",
     term_months: "",
     max_investors: "",
-    offering_type: "",
     investor_countries: [],
     accepts_us_investors: null,
     uses_mass_marketing: null,
+    milestones: [],
     documents: [],
   };
 }
