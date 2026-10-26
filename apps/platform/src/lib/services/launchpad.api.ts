@@ -226,6 +226,14 @@ export const launchpadApi = {
     return body.document;
   },
 
+  /** Demo only (backend REVIEW_SKIP_ENABLED): approve a submitted application without review. */
+  skipReview: (accessToken: string, id: string) =>
+    backendClient.post<Application>(
+      `/v1/launchpad/applications/${encodeURIComponent(id)}/skip-review`,
+      {},
+      { headers: bearer(accessToken) }
+    ),
+
   myApplications: (accessToken: string) =>
     backendClient.get<Application[]>("/v1/launchpad/applications/mine", {
       headers: bearer(accessToken),

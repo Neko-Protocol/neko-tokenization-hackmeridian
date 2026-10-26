@@ -29,6 +29,7 @@ import {
 } from "../../utils/validation";
 import { ApplicationWizard } from "../ui/ApplicationWizard";
 import { AssistantPanel } from "../ui/AssistantPanel";
+import { SkipReview } from "../ui/SkipReview";
 
 const FORM_KEY = "neko-launchpad-form";
 
@@ -216,12 +217,19 @@ export function ApplicationWorkspace({
             <CheckCircle2 className="h-10 w-10 text-[#2ed06e]" strokeWidth={1.75} />
             <div className="flex flex-col gap-2">
               <h1 className="text-[28px] font-medium leading-tight tracking-tight text-white">
-                Application sent
+                {submitted.status === "approved" ? "Application approved" : "Application sent"}
               </h1>
-              <p className="text-[15px] leading-relaxed text-white/60">
-                <span className="text-white">{submitted.asset_name}</span> is now with Neko&apos;s legal
-                and compliance team. You&apos;ll see the status change on your dashboard.
-              </p>
+              {submitted.status === "approved" ? (
+                <p className="text-[15px] leading-relaxed text-white/60">
+                  <span className="text-white">{submitted.asset_name}</span> skipped pre-approval for the
+                  demo. You can launch it from your dashboard.
+                </p>
+              ) : (
+                <p className="text-[15px] leading-relaxed text-white/60">
+                  <span className="text-white">{submitted.asset_name}</span> is now with Neko&apos;s legal
+                  and compliance team. You&apos;ll see the status change on your dashboard.
+                </p>
+              )}
             </div>
             <button
               type="button"
@@ -230,6 +238,7 @@ export function ApplicationWorkspace({
             >
               Go to my assets
             </button>
+            <SkipReview app={submitted} onApproved={setSubmitted} />
           </div>
         ) : (
           <>

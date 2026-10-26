@@ -23,7 +23,7 @@ Run the migrations from `neko-web-hackmeridian/supabase/migrations` up to `0030_
 3. Variables:
    - `GITHUB_PACKAGES_TOKEN`: a GitHub token with `read:packages`. Needed at build time: the `@neko-protocol/*` packages come from GitHub Packages (see `.npmrc`). Without it `npm ci` fails with 401.
    - Required by `src/config/env.validation.ts`: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`, `STELLAR_NETWORK`, `STELLAR_NETWORK_PASSPHRASE`, `STELLAR_RPC_URL`, `STELLAR_HORIZON_URL`, `INTERNAL_API_KEY` (at least 32 characters, generate with `openssl rand -hex 32`).
-   - Launchpad: `PRIVY_APP_ID`, `PRIVY_APP_SECRET`, `PRIVY_VERIFICATION_KEY`; Didit (`DIDIT_API_KEY`, `DIDIT_WEBHOOK_SECRET`, `DIDIT_KYC_WORKFLOW_ID`, `DIDIT_KYB_WORKFLOW_ID`) or `KYC_MOCK_ENABLED=true` for the demo; `LAUNCHPAD_APP_URL` (the Launchpad URL from step 3).
+   - Launchpad: `PRIVY_APP_ID`, `PRIVY_APP_SECRET`, `PRIVY_VERIFICATION_KEY`; Didit (`DIDIT_API_KEY`, `DIDIT_WEBHOOK_SECRET`, `DIDIT_KYC_WORKFLOW_ID`, `DIDIT_KYB_WORKFLOW_ID`) or `KYC_MOCK_ENABLED=true` for the demo; `REVIEW_SKIP_ENABLED=true` to let judges skip application pre-approval; `LAUNCHPAD_APP_URL` (the Launchpad URL from step 3).
    - Admin sign-in codes are sent by email: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`.
    - `CORS_ORIGIN`: the four web app URLs.
 4. Generate a public domain. That URL is `BACKEND_URL` for the web apps.
@@ -41,6 +41,7 @@ Variables (Project Settings > Environment Variables):
 | `NEXT_PUBLIC_STELLAR_NETWORK=testnet` and the other `NEXT_PUBLIC_STELLAR_*` from `.env.example` | yes       | yes   |                        |
 | `NEXT_PUBLIC_PRIVY_APP_ID`, `NEXT_PUBLIC_PRIVY_CLIENT_ID`                                       | yes       |       | see its `.env.example` |
 | `NEXT_PUBLIC_KYC_MOCK_ENABLED`                                                                  | yes       |       |                        |
+| `NEXT_PUBLIC_REVIEW_SKIP_ENABLED`                                                               | yes       |       |                        |
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`                                     |           | yes   | see its `.env.example` |
 | `NEKO_LEGAL_KB_URL` (connector URL with token, server only)                                     |           | yes   |                        |
 | `GITHUB_PACKAGES_TOKEN`                                                                         |           |       | yes                    |
